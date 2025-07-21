@@ -101,12 +101,22 @@ const BoxReveal = ({ children, delay = 0 }: { children: React.ReactNode; delay?:
 };
 
 // Google Sign In Button Component
-const GoogleSignInButton = () => {
+interface GoogleSignInButtonProps {
+  onLoginSuccess?: () => void;
+}
+
+const GoogleSignInButton = ({ onLoginSuccess }: GoogleSignInButtonProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const handleGoogleSignIn = () => {
     // Handle Google OAuth here
     console.log('Google Sign In clicked');
+    // Simulate successful login
+    setTimeout(() => {
+      if (onLoginSuccess) {
+        onLoginSuccess();
+      }
+    }, 1000);
   };
 
   return (
@@ -140,7 +150,11 @@ const GoogleSignInButton = () => {
 };
 
 // Main Login Component
-const WalletSenseLogin = () => {
+interface WalletSenseLoginProps {
+  onLoginSuccess?: () => void;
+}
+
+const WalletSenseLogin = ({ onLoginSuccess }: WalletSenseLoginProps) => {
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
       {/* Animated Background */}
@@ -184,7 +198,7 @@ const WalletSenseLogin = () => {
           {/* Sign In Button */}
           <BoxReveal delay={0.6}>
             <div className="mb-8">
-              <GoogleSignInButton />
+              <GoogleSignInButton onLoginSuccess={onLoginSuccess} />
             </div>
           </BoxReveal>
 
