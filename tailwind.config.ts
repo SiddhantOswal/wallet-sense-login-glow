@@ -61,12 +61,30 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				wallet: {
+					primary: 'hsl(var(--wallet-primary))',
+					'primary-foreground': 'hsl(var(--wallet-primary-foreground))',
+					secondary: 'hsl(var(--wallet-secondary))',
+					'secondary-foreground': 'hsl(var(--wallet-secondary-foreground))',
+					accent: 'hsl(var(--wallet-accent))',
+					'accent-foreground': 'hsl(var(--wallet-accent-foreground))'
+				},
+				skeleton: 'hsl(var(--skeleton))'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			boxShadow: {
+				'glass': 'var(--shadow-glass)',
+				'glow': 'var(--shadow-glow)',
+				'button': 'var(--shadow-button)'
+			},
+			backgroundImage: {
+				'gradient-primary': 'var(--gradient-primary)',
+				'gradient-glow': 'var(--gradient-glow)'
 			},
 			keyframes: {
 				'accordion-down': {
@@ -84,11 +102,41 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'ripple': {
+					'0%, 100%': { 
+						transform: 'translate(-50%, -50%) scale(1)',
+						opacity: '0.3'
+					},
+					'50%': { 
+						transform: 'translate(-50%, -50%) scale(0.9)',
+						opacity: '0.1'
+					}
+				},
+				'orbit': {
+					'0%': {
+						transform: 'rotate(0deg) translateY(calc(var(--radius) * 1px)) rotate(0deg)'
+					},
+					'100%': {
+						transform: 'rotate(360deg) translateY(calc(var(--radius) * 1px)) rotate(-360deg)'
+					}
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0px)' },
+					'50%': { transform: 'translateY(-20px)' }
+				},
+				'glow': {
+					'0%, 100%': { opacity: '0.5' },
+					'50%': { opacity: '1' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'ripple': 'ripple 3s ease-in-out infinite',
+				'orbit': 'orbit calc(var(--duration) * 1s) linear infinite',
+				'float': 'float 6s ease-in-out infinite',
+				'glow': 'glow 2s ease-in-out infinite alternate'
 			}
 		}
 	},
