@@ -1,7 +1,7 @@
 "use client";
 import { Moon } from "lucide-react";
 
-export default function WelcomeBanner() {
+export default function WelcomeBanner({ onLogout }: { onLogout?: () => void }) {
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return "Good Morning";
@@ -9,7 +9,7 @@ export default function WelcomeBanner() {
     return "Good Evening";
   };
 
-  const userName = "User";
+  const userName = "Moneyhead..";
 
   return (
     <div className="w-full bg-white dark:bg-zinc-900 shadow-md px-6 py-4 flex items-center justify-between z-10">
@@ -29,7 +29,10 @@ export default function WelcomeBanner() {
       </div>
 
       {/* Right Side: Logout Button */}
-      <button className="text-sm font-medium bg-gradient-to-r from-blue-600 to-pink-500 hover:from-blue-700 hover:to-pink-600 text-white px-4 py-2 rounded-md transition">
+      <button
+        className="text-sm font-medium bg-gradient-to-r from-blue-600 to-pink-500 hover:from-blue-700 hover:to-pink-600 text-white px-4 py-2 rounded-md transition"
+        onClick={() => onLogout && onLogout()}
+      >
         Logout
       </button>
     </div>

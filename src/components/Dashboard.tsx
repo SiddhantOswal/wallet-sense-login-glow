@@ -10,12 +10,12 @@ import GoalCard from '@/components/GoalCard';
 import ReceiptList from '@/components/ReceiptList';
 import WelcomeBanner from '@/components/ui/WelcomeBanner';
 // ...existing code...
-const Dashboard = () => {
+const Dashboard = ({ onLogout }: { onLogout?: () => void }) => {
   return (
     <div className="min-h-screen bg-gradient-bg flex flex-col">
       {/* Welcome Banner above everything */}
       <div className="w-full z-20">
-        <WelcomeBanner />
+        <WelcomeBanner onLogout={onLogout} />
       </div>
       <div className="flex flex-1">
         {/* Left side - AI Assistant (60%) */}

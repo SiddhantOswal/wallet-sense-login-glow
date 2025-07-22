@@ -21,14 +21,14 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export function AIAssistantInterface() {
   // Helper functions and placeholders
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good Morning";
-    if (hour < 18) return "Good Afternoon";
-    return "Good Evening";
-  };
-  const userName = "User";
-  const insight = "Your savings are up 12% this month!";
+  // const getGreeting = () => {
+  //   const hour = new Date().getHours();
+  //   if (hour < 12) return "Good Morning";
+  //   if (hour < 18) return "Good Afternoon";
+  //   return "Good Evening";
+  // };
+  // const userName = "Moneyhead";
+  // const insight = "Your savings are up 12% this month!";
   // Simulated chat messages state
   const [messages, setMessages] = useState<Array<{ text: string; sender: string }>>([
     // { text: 'Welcome to Nucleus!', sender: 'ai' }

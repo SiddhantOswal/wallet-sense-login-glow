@@ -182,7 +182,7 @@ const NucleusLogin = ({ onLoginSuccess }: NucleusLoginProps) => {
                 ease: "easeInOut"
               }}
             >
-              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-primary bg-clip-text text-transparent bg-[length:200%_200%]">
+              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-pink-500 bg-clip-text text-transparent">
                 Nucleus
               </h1>
             </motion.div>
