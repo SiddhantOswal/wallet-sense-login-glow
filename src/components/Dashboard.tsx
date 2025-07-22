@@ -1,5 +1,9 @@
 import { AIAssistantInterface } from '@/components/ui/ai-assistant-interface';
 import { Card } from '@/components/ui/card';
+import SpendingChart from '@/components/SpendingChart';
+// import TrendChart from '@/components/TrendChart';
+// import CategoryBarChart from '@/components/CategoryBarChart';
+// import DailySpendHeatmap from '@/components/DailySpendHeatmap';
 import { TrendingUp, DollarSign, PiggyBank, CreditCard } from 'lucide-react';
 import SummaryCard from '@/components/SummaryCard';
 import GoalCard from '@/components/GoalCard';
@@ -15,7 +19,7 @@ const Dashboard = () => {
       
       {/* Right side - Financial Overview (40%) */}
       <div className="w-[40%] bg-muted/20 flex flex-col h-screen max-h-screen">
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4 h-full max-h-screen">
           {/* Header */}
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-foreground mb-2">
@@ -35,50 +39,26 @@ const Dashboard = () => {
           {/* Recent Expenses */}
           <ReceiptList />
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 gap-4">
-            <Card className="glass-card p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Balance</p>
-                  <p className="text-2xl font-bold text-wallet-primary">₹2,45,680</p>
-                </div>
-                <DollarSign className="w-8 h-8 text-wallet-secondary" />
-              </div>
-            </Card>
-
-            <Card className="glass-card p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">This Month</p>
-                  <p className="text-xl font-semibold text-foreground">₹38,420</p>
-                  <p className="text-xs text-green-600">+12% vs last month</p>
-                </div>
-                <TrendingUp className="w-8 h-8 text-green-600" />
-              </div>
-            </Card>
-
-            <Card className="glass-card p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Investments</p>
-                  <p className="text-xl font-semibold text-foreground">₹1,85,200</p>
-                  <p className="text-xs text-wallet-primary">8 active SIPs</p>
-                </div>
-                <PiggyBank className="w-8 h-8 text-wallet-primary" />
-              </div>
-            </Card>
-
-            <Card className="glass-card p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Expenses</p>
-                  <p className="text-xl font-semibold text-foreground">₹28,640</p>
-                  <p className="text-xs text-orange-600">Budget: ₹35,000</p>
-                </div>
-                <CreditCard className="w-8 h-8 text-orange-600" />
-              </div>
-            </Card>
+          {/* Charts Section */}
+          <div className="space-y-4">
+            <SpendingChart
+              dataObj={{ Food: 1200, Shopping: 800, Travel: 400, Bills: 600, Entertainment: 300 }}
+            />
+            {/* Placeholder for TrendChart */}
+            <div className="rounded-md shadow-sm p-4 bg-white dark:bg-muted/80">
+              <h3 className="font-bold text-lg text-foreground mb-4">Weekly Trend</h3>
+              <div className="text-muted-foreground text-sm">[TrendChart will appear here]</div>
+            </div>
+            {/* Placeholder for CategoryBarChart */}
+            <div className="rounded-md shadow-sm p-4 bg-white dark:bg-muted/80">
+              <h3 className="font-bold text-lg text-foreground mb-4">Spend by Category</h3>
+              <div className="text-muted-foreground text-sm">[CategoryBarChart will appear here]</div>
+            </div>
+            {/* Optional: DailySpendHeatmap */}
+            <div className="rounded-md shadow-sm p-4 bg-white dark:bg-muted/80">
+              <h3 className="font-bold text-lg text-foreground mb-4">Daily Spend Heatmap</h3>
+              <div className="text-muted-foreground text-sm">[DailySpendHeatmap will appear here]</div>
+            </div>
           </div>
 
           {/* Recent Activity */}
