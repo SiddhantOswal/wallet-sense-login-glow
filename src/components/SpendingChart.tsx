@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import {
   ResponsiveContainer,
   PieChart,
@@ -35,35 +36,42 @@ export const SpendingChart: React.FC<SpendingChartProps> = ({ dataObj, className
       {data.length === 0 ? (
         <div className="text-muted-foreground text-sm">No spending data yet.</div>
       ) : (
-        <ResponsiveContainer width="100%" height={260}>
-          <PieChart>
-            <Pie
-              data={data}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              outerRadius={80}
-              label={({ name }) => name}
-            >
-              {data.map((entry, idx) => (
-                <Cell key={`cell-${idx}`} fill={COLORS[idx % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip
-              formatter={(value: number, name: string) => [
-                `₹${value.toLocaleString()}`,
-                name,
-              ]}
-            />
-            <Legend
-              layout="horizontal"
-              verticalAlign="bottom"
-              align="center"
-              wrapperStyle={{ marginTop: 12 }}
-            />
-          </PieChart>
-        </ResponsiveContainer>
+        <motion.div
+          key={JSON.stringify(data)}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <ResponsiveContainer width="100%" height={260}>
+            <PieChart>
+              <Pie
+                data={data}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={80}
+                label={({ name }) => name}
+              >
+                {data.map((entry, idx) => (
+                  <Cell key={`cell-${idx}`} fill={COLORS[idx % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip
+                formatter={(value: number, name: string) => [
+                  `₹${value.toLocaleString()}`,
+                  name,
+                ]}
+              />
+              <Legend
+                layout="horizontal"
+                verticalAlign="bottom"
+                align="center"
+                wrapperStyle={{ marginTop: 12 }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </motion.div>
       )}
     </div>
   );

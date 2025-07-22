@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import {
   ResponsiveContainer,
   BarChart,
@@ -40,26 +41,33 @@ export const CategoryBarChart: React.FC<CategoryBarChartProps> = ({ data = [], c
       {(!data || data.length === 0 || categories.length === 0) ? (
         <div className="text-muted-foreground text-sm">No category data yet.</div>
       ) : (
-        <ResponsiveContainer width="100%" height={350}>
-          <BarChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis dataKey="week" stroke="#6b7280" tick={{ fontSize: 12 }} />
-            <YAxis stroke="#6b7280" tickFormatter={formatRupees} tick={{ fontSize: 12 }} />
-            <Tooltip formatter={(value: number) => formatRupees(value)} labelFormatter={label => `Week: ${label}`} />
-            <Legend wrapperStyle={{ marginTop: 12 }} />
-            {categories.map((cat, idx) => (
-              <Bar
-                key={cat}
-                dataKey={cat}
-                fill={COLORS[idx % COLORS.length]}
-                name={cat}
-                radius={[4, 4, 0, 0]}
-                barSize={28}
-                isAnimationActive={true}
-              />
-            ))}
-          </BarChart>
-        </ResponsiveContainer>
+        <motion.div
+          key={JSON.stringify(data)}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <ResponsiveContainer width="100%" height={350}>
+            <BarChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="week" stroke="#6b7280" tick={{ fontSize: 12 }} />
+              <YAxis stroke="#6b7280" tickFormatter={formatRupees} tick={{ fontSize: 12 }} />
+              <Tooltip formatter={(value: number) => formatRupees(value)} labelFormatter={label => `Week: ${label}`} />
+              <Legend wrapperStyle={{ marginTop: 12 }} />
+              {categories.map((cat, idx) => (
+                <Bar
+                  key={cat}
+                  dataKey={cat}
+                  fill={COLORS[idx % COLORS.length]}
+                  name={cat}
+                  radius={[4, 4, 0, 0]}
+                  barSize={28}
+                  isAnimationActive={true}
+                />
+              ))}
+            </BarChart>
+          </ResponsiveContainer>
+        </motion.div>
       )}
     </div>
   );

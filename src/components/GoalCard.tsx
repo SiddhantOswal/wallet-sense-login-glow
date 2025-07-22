@@ -45,9 +45,9 @@ const GoalCard = () => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.1 }}
+      transition={{ duration: 0.4 }}
     >
       <EnhancedCard className="backdrop-blur-md bg-card/70 border-border/50 hover:shadow-lg transition-all duration-300">
         <CardHeader className="border-0 py-4">

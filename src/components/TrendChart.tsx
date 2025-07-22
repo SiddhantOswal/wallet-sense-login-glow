@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import {
   ResponsiveContainer,
   LineChart,
@@ -23,23 +24,30 @@ export const TrendChart: React.FC<TrendChartProps> = ({ data = [], className }) 
       {(!data || data.length === 0) ? (
         <div className="text-muted-foreground text-sm">No weekly trend data yet.</div>
       ) : (
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis dataKey="week" stroke="#6b7280" tick={{ fontSize: 12 }} />
-            <YAxis stroke="#6b7280" tickFormatter={formatRupees} tick={{ fontSize: 12 }} />
-            <Tooltip formatter={(value: number) => formatRupees(value)} labelFormatter={label => `Week: ${label}`} />
-            <Line
-              type="monotone"
-              dataKey="amount"
-              stroke="#6366F1"
-              strokeWidth={3}
-              dot={{ r: 5, stroke: '#6366F1', strokeWidth: 2, fill: '#fff' }}
-              activeDot={{ r: 7 }}
-              isAnimationActive={true}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        <motion.div
+          key={JSON.stringify(data)}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="week" stroke="#6b7280" tick={{ fontSize: 12 }} />
+              <YAxis stroke="#6b7280" tickFormatter={formatRupees} tick={{ fontSize: 12 }} />
+              <Tooltip formatter={(value: number) => formatRupees(value)} labelFormatter={label => `Week: ${label}`} />
+              <Line
+                type="monotone"
+                dataKey="amount"
+                stroke="#6366F1"
+                strokeWidth={3}
+                dot={{ r: 5, stroke: '#6366F1', strokeWidth: 2, fill: '#fff' }}
+                activeDot={{ r: 7 }}
+                isAnimationActive={true}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </motion.div>
       )}
     </div>
   );

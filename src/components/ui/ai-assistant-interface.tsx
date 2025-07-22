@@ -1,7 +1,6 @@
+import React, { useState, useRef } from "react";
 "use client";
 
-import type React from "react";
-import { useState, useRef } from "react";
 import {
   Search,
   Mic,
@@ -13,11 +12,62 @@ import {
   CreditCard,
   BrainCircuit,
   Sparkles,
+  Loader2,
+  Download,
+  Upload,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export function AIAssistantInterface() {
+  // Simulated chat messages state
+  const [messages, setMessages] = useState<Array<{ text: string; sender: string }>>([
+    { text: 'Welcome to WalletSense!', sender: 'ai' }
+  ]);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when messages change
+  React.useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+  // Dummy receipts data for export
+  const receipts = [
+    { date: '2025-07-01', merchant: 'Amazon', amount: 1200 },
+    { date: '2025-07-02', merchant: 'Uber', amount: 800 },
+    { date: '2025-07-03', merchant: 'Starbucks', amount: 400 },
+  ];
+
+  // Export receipts as CSV
+  const handleExportCSV = () => {
+    const header = ['Date', 'Merchant', 'Amount'];
+    const rows = receipts.map(r => [r.date, r.merchant, r.amount]);
+    const csvContent = [header, ...rows].map(e => e.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'receipts.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Upload MCP JSON
+  const handleUploadMCP = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+    input.onchange = (e: any) => {
+      const file = e.target.files[0];
+      if (file) {
+        // You can handle the file here (e.g., parse JSON)
+        alert(`Uploaded MCP JSON: ${file.name}`);
+      }
+    };
+    input.click();
+  };
   const [inputValue, setInputValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // Simulate Gemini loading state
   const [searchEnabled, setSearchEnabled] = useState(false);
   const [deepResearchEnabled, setDeepResearchEnabled] = useState(false);
   const [reasonEnabled, setReasonEnabled] = useState(false);
@@ -71,14 +121,27 @@ export function AIAssistantInterface() {
 
   const handleSendMessage = () => {
     if (inputValue.trim()) {
-      console.log("Sending message:", inputValue);
-      setInputValue("");
+      setIsLoading(true);
+      setMessages((prev) => [...prev, { text: inputValue, sender: 'user' }]);
+      setTimeout(() => {
+        setIsLoading(false);
+        setMessages((prev) => [...prev, { text: 'Gemini response...', sender: 'ai' }]);
+        setInputValue("");
+      }, 2000); // Simulate Gemini response
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-bg p-6">
-      <div className="w-full max-w-3xl mx-auto flex flex-col items-center">
+    <>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-bg p-6">
+        <div className="w-full max-w-3xl mx-auto flex flex-col items-center">
+          {/* Chat messages */}
+          <div className="w-full max-w-2xl mx-auto mb-6 bg-white/40 dark:bg-zinc-800/40 rounded-xl p-4 space-y-2 overflow-y-auto" style={{ maxHeight: 320 }}>
+            {messages.map((msg, idx) => (
+              <div key={idx} className={`text-base px-3 py-2 rounded-lg ${msg.sender === 'ai' ? 'bg-blue-50 dark:bg-zinc-700 text-blue-900 dark:text-blue-200' : 'bg-wallet-accent text-wallet-accent-foreground'}`}>{msg.text}</div>
+            ))}
+            <div ref={chatEndRef} />
+          </div>
         {/* WalletSense Logo with animated gradient */}
         <div className="mb-8 w-20 h-20 relative">
           <motion.div
@@ -123,7 +186,8 @@ export function AIAssistantInterface() {
               placeholder="Ask about your finances..."
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              className="w-full bg-transparent text-foreground text-base outline-none placeholder:text-muted-foreground"
+              className={`w-full bg-transparent text-foreground text-base outline-none placeholder:text-muted-foreground transition-all duration-300 ${isLoading ? 'ring-2 ring-blue-400 animate-pulse' : ''}`}
+              disabled={isLoading}
             />
           </div>
 
@@ -210,14 +274,18 @@ export function AIAssistantInterface() {
               </button>
               <button
                 onClick={handleSendMessage}
-                disabled={!inputValue.trim()}
+                disabled={!inputValue.trim() || isLoading}
                 className={`w-8 h-8 flex items-center justify-center rounded-full transition-all duration-300 ${
-                  inputValue.trim()
+                  inputValue.trim() && !isLoading
                     ? "bg-wallet-primary text-wallet-primary-foreground hover:bg-wallet-secondary shadow-button"
                     : "bg-muted text-muted-foreground cursor-not-allowed"
                 }`}
               >
-                <ArrowUp className="w-4 h-4" />
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <ArrowUp className="w-4 h-4" />
+                )}
               </button>
             </div>
           </div>
@@ -354,8 +422,26 @@ export function AIAssistantInterface() {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </div>
-    </div>
+      {/* Floating Export/Upload buttons */}
+      <div className="fixed bottom-6 right-6 flex flex-col gap-4 z-50">
+        <button
+          className="btn-glass flex items-center gap-2 px-4 py-2 rounded-xl bg-white/50 dark:bg-zinc-800/60 backdrop-blur-lg shadow transition-all hover:shadow-lg hover:scale-105 text-foreground"
+          onClick={handleExportCSV}
+        >
+          <Download className="w-5 h-5" />
+          Export CSV
+        </button>
+        <button
+          className="btn-glass flex items-center gap-2 px-4 py-2 rounded-xl bg-white/50 dark:bg-zinc-800/60 backdrop-blur-lg shadow transition-all hover:shadow-lg hover:scale-105 text-foreground"
+          onClick={handleUploadMCP}
+        >
+          <Upload className="w-5 h-5" />
+          Upload MCP
+        </button>
+      </div>
+    </>
   );
 }
 
