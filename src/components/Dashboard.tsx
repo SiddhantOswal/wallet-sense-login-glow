@@ -14,8 +14,8 @@ const Dashboard = () => {
       </div>
       
       {/* Right side - Financial Overview (40%) */}
-      <div className="w-[40%] p-6 overflow-y-auto bg-muted/20">
-        <div className="space-y-6">
+      <div className="w-[40%] bg-muted/20 flex flex-col h-screen max-h-screen">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Header */}
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-foreground mb-2">
@@ -85,6 +85,7 @@ const Dashboard = () => {
           <div className="space-y-3">
             <h3 className="text-lg font-semibold text-foreground">Recent Activity</h3>
             <div className="space-y-2">
+              {/* ...existing code... */}
               {[
                 { action: "SIP Investment", amount: "₹5,000", time: "2 hours ago", type: "investment" },
                 { action: "Grocery Shopping", amount: "₹2,840", time: "1 day ago", type: "expense" },
