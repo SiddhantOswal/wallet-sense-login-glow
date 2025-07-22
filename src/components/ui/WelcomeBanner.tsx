@@ -29,7 +29,7 @@ export default function WelcomeBanner() {
       </div>
 
       {/* Right Side: Logout Button */}
-      <button className="text-sm font-medium bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition">
+      <button className="text-sm font-medium bg-gradient-to-r from-blue-600 to-pink-500 hover:from-blue-700 hover:to-pink-600 text-white px-4 py-2 rounded-md transition">
         Logout
       </button>
     </div>

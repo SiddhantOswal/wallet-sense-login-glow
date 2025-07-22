@@ -145,7 +145,7 @@ export function AIAssistantInterface() {
     <>
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-bg p-6">
         <div className="w-full max-w-3xl mx-auto flex flex-col items-center">
-          <WelcomeBanner /><br></br>
+          {/* <WelcomeBanner /><br></br> */}
           {/* Chat messages */}
           {/* <div className="w-full max-w-2xl mx-auto mb-6 bg-white/40 dark:bg-zinc-800/40 rounded-xl p-4 space-y-2 overflow-y-auto" style={{ maxHeight: 320 }}>
             {messages.map((msg, idx) => (
