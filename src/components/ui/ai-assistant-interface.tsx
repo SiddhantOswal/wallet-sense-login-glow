@@ -31,7 +31,7 @@ export function AIAssistantInterface() {
   const insight = "Your savings are up 12% this month!";
   // Simulated chat messages state
   const [messages, setMessages] = useState<Array<{ text: string; sender: string }>>([
-    // { text: 'Welcome to WalletSense!', sender: 'ai' }
+    // { text: 'Welcome to Nucleus!', sender: 'ai' }
   ]);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -153,7 +153,7 @@ export function AIAssistantInterface() {
             ))}
             <div ref={chatEndRef} />
           </div> */}
-        {/* WalletSense Logo with animated gradient */}
+        {/* Nucleus Logo with animated gradient */}
         <div className="mb-8 w-20 h-20 relative">
           <motion.div
             className="w-full h-full rounded-full bg-gradient-primary flex items-center justify-center shadow-glow"
@@ -179,7 +179,7 @@ export function AIAssistantInterface() {
             transition={{ duration: 0.3 }}
             className="flex flex-col items-center"
           >
-            <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-pink-500 bg-clip-text text-transparent mb-2">
               Ready to assist you
             </h1>
             <p className="text-muted-foreground max-w-md">

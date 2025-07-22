@@ -150,11 +150,11 @@ const GoogleSignInButton = ({ onLoginSuccess }: GoogleSignInButtonProps) => {
 };
 
 // Main Login Component
-interface WalletSenseLoginProps {
+interface NucleusLoginProps {
   onLoginSuccess?: () => void;
 }
 
-const WalletSenseLogin = ({ onLoginSuccess }: WalletSenseLoginProps) => {
+const NucleusLogin = ({ onLoginSuccess }: NucleusLoginProps) => {
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
       {/* Animated Background */}
@@ -183,7 +183,7 @@ const WalletSenseLogin = ({ onLoginSuccess }: WalletSenseLoginProps) => {
               }}
             >
               <h1 className="text-4xl md:text-5xl font-bold bg-gradient-primary bg-clip-text text-transparent bg-[length:200%_200%]">
-                WalletSense
+                Nucleus
               </h1>
             </motion.div>
           </BoxReveal>
@@ -250,4 +250,4 @@ const WalletSenseLogin = ({ onLoginSuccess }: WalletSenseLoginProps) => {
   );
 };
 
-export default WalletSenseLogin;
+export default NucleusLogin;

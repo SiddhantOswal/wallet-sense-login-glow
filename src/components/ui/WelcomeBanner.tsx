@@ -20,7 +20,7 @@ export default function WelcomeBanner() {
         </div>
         <div className="flex flex-col">
           <h2 className="text-xl font-extrabold bg-gradient-to-r from-blue-600 to-pink-500 text-transparent bg-clip-text">
-            Welcome to WalletSense!
+            Welcome to Nucleus!
           </h2>
           <p className="text-gray-900 dark:text-white text-sm">
             <span className="font-medium">{getGreeting()}, {userName}</span> <span className="ml-1">👋</span>

@@ -10,12 +10,12 @@ import {
 } from 'recharts';
 
 const COLORS = [
-  '#6366F1', // Indigo
-  '#EC4899', // Pink
-  '#F59E0B', // Amber
-  '#10B981', // Emerald
-  '#3B82F6', // Blue
-  '#8B5CF6', // Violet
+  '#2563eb', // Blue-600
+  '#3b82f6', // Blue-500
+  '#60a5fa', // Blue-400
+  '#d946ef', // Pink-500
+  '#ec4899', // Pink-400
+  '#f472b6', // Pink-300
 ];
 
 export interface SpendingChartProps {

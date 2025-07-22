@@ -17,14 +17,13 @@ export interface CategoryBarChartProps {
 }
 
 const COLORS = [
-  '#6366F1', // Indigo
-  '#EC4899', // Pink
-  '#F59E0B', // Amber
-  '#10B981', // Emerald
-  '#3B82F6', // Blue
-  '#8B5CF6', // Violet
-  '#F472B6', // Rose
-  '#34D399', // Green
+  '#2563eb', // Blue-600
+  '#d946ef', // Pink-500
+  'url(#bluePinkGradient)', // SVG gradient fallback
+  '#2563eb', // Blue-600
+  '#d946ef', // Pink-500
+  '#2563eb', // Blue-600
+  '#d946ef', // Pink-500
 ];
 
 const formatRupees = (value: number) => `₹${value.toLocaleString()}`;

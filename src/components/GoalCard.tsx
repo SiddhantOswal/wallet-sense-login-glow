@@ -72,7 +72,7 @@ const GoalCard = () => {
                   initial={{ width: 0 }}
                   animate={{ width: `${progressPercentage}%` }}
                   transition={{ duration: 1.5, ease: "easeOut" }}
-                  className="h-full bg-gradient-to-r from-primary to-primary/80 rounded-full relative"
+                  className="h-full bg-gradient-to-r from-blue-600 via-blue-400 to-pink-500 rounded-full relative"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse" />
                 </motion.div>

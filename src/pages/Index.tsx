@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import WalletSenseLogin from '@/components/WalletSenseLogin';
+import NucleusLogin from '@/components/WalletSenseLogin';
 import Dashboard from '@/components/Dashboard';
 
 const Index = () => {
@@ -9,7 +9,7 @@ const Index = () => {
     return <Dashboard />;
   }
 
-  return <WalletSenseLogin onLoginSuccess={() => setIsLoggedIn(true)} />;
+  return <NucleusLogin onLoginSuccess={() => setIsLoggedIn(true)} />;
 };
 
 export default Index;

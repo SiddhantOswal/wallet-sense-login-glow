@@ -38,7 +38,7 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
-    /* WalletSense Brand Colors */
+    /* Nucleus Brand Colors */
     --wallet-primary: 220 85% 57%;
     --wallet-primary-foreground: 0 0% 100%;
     --wallet-secondary: 217 91% 60%;
@@ -101,7 +101,7 @@ All colors MUST be HSL.
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
 
-    /* WalletSense Dark Mode Colors */
+    /* Nucleus Dark Mode Colors */
     --wallet-primary: 220 85% 65%;
     --wallet-primary-foreground: 222.2 84% 4.9%;
     --wallet-secondary: 217 91% 68%;

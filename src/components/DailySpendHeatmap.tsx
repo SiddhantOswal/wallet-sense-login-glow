@@ -8,11 +8,11 @@ export interface DailySpendHeatmapProps {
 
 // Color scale for spend intensity
 const COLOR_SCALE = [
-  'bg-gray-200',    // 0
-  'bg-blue-100',    // low
-  'bg-blue-300',    // medium
-  'bg-blue-500',    // high
-  'bg-blue-700',    // very high
+  'bg-blue-50',    // 0
+  'bg-blue-600',   // low
+  'bg-pink-500',   // medium
+  'bg-blue-600',   // high
+  'bg-pink-500',   // very high
 ];
 
 // Get color index based on amount and thresholds
@@ -27,7 +27,7 @@ function getColorIdx(amount: number, thresholds: number[]) {
 export const DailySpendHeatmap: React.FC<DailySpendHeatmapProps> = ({ data = [], className }) => {
   if (!data || data.length === 0) {
     return (
-      <div className={`rounded-md shadow-sm p-4 bg-white dark:bg-muted/80 ${className || ''}`}>
+      <div className={`rounded-md shadow-sm p-4 bg-gradient-to-r from-blue-600 to-pink-500 text-white ${className || ''}`}>
         <h3 className="font-bold text-lg text-foreground mb-4">Daily Spend Heatmap</h3>
         <div className="text-muted-foreground text-sm">No daily data yet.</div>
       </div>
