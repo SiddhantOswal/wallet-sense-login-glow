@@ -1,7 +1,7 @@
 import { AIAssistantInterface } from '@/components/ui/ai-assistant-interface';
 import { Card } from '@/components/ui/card';
 import SpendingChart from '@/components/SpendingChart';
-// import TrendChart from '@/components/TrendChart';
+import TrendChart from '@/components/TrendChart';
 // import CategoryBarChart from '@/components/CategoryBarChart';
 // import DailySpendHeatmap from '@/components/DailySpendHeatmap';
 import { TrendingUp, DollarSign, PiggyBank, CreditCard } from 'lucide-react';
@@ -44,11 +44,9 @@ const Dashboard = () => {
             <SpendingChart
               dataObj={{ Food: 1200, Shopping: 800, Travel: 400, Bills: 600, Entertainment: 300 }}
             />
-            {/* Placeholder for TrendChart */}
-            <div className="rounded-md shadow-sm p-4 bg-white dark:bg-muted/80">
-              <h3 className="font-bold text-lg text-foreground mb-4">Weekly Trend</h3>
-              <div className="text-muted-foreground text-sm">[TrendChart will appear here]</div>
-            </div>
+            <TrendChart
+              data={[{ week: 'Jul 1', amount: 4200 }, { week: 'Jul 8', amount: 3800 }, { week: 'Jul 15', amount: 4500 }, { week: 'Jul 22', amount: 3900 }]}
+            />
             {/* Placeholder for CategoryBarChart */}
             <div className="rounded-md shadow-sm p-4 bg-white dark:bg-muted/80">
               <h3 className="font-bold text-lg text-foreground mb-4">Spend by Category</h3>
