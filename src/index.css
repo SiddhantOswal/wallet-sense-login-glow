@@ -175,4 +175,23 @@ All colors MUST be HSL.
     @apply absolute rounded-full border opacity-20 animate-pulse;
     border-color: hsl(var(--wallet-primary));
   }
+
+  /* Custom scrollbar for receipt list */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: 3px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground));
+    border-radius: 3px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--foreground));
+  }
 }

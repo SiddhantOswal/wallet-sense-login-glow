@@ -1,17 +1,20 @@
 import { AIAssistantInterface } from '@/components/ui/ai-assistant-interface';
 import { Card } from '@/components/ui/card';
 import { TrendingUp, DollarSign, PiggyBank, CreditCard } from 'lucide-react';
+import SummaryCard from '@/components/SummaryCard';
+import GoalCard from '@/components/GoalCard';
+import ReceiptList from '@/components/ReceiptList';
 
 const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-bg flex">
-      {/* Left side - AI Assistant (70%) */}
-      <div className="w-[70%] border-r border-border">
+      {/* Left side - AI Assistant (60%) */}
+      <div className="w-[60%] border-r border-border">
         <AIAssistantInterface />
       </div>
       
-      {/* Right side - Financial Overview (30%) */}
-      <div className="w-[30%] p-6 overflow-y-auto">
+      {/* Right side - Financial Overview (40%) */}
+      <div className="w-[40%] p-6 overflow-y-auto bg-muted/20">
         <div className="space-y-6">
           {/* Header */}
           <div className="text-center mb-8">
@@ -22,6 +25,15 @@ const Dashboard = () => {
               Quick insights at a glance
             </p>
           </div>
+
+          {/* AI Financial Summary */}
+          <SummaryCard />
+
+          {/* Savings Goal */}
+          <GoalCard />
+
+          {/* Recent Expenses */}
+          <ReceiptList />
 
           {/* Quick Stats */}
           <div className="grid grid-cols-1 gap-4">
