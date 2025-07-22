@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 "use client";
+import WelcomeBanner from "@/components/ui/WelcomeBanner";
 
 import {
   Search,
@@ -29,7 +30,9 @@ export function AIAssistantInterface() {
   const userName = "User";
   const insight = "Your savings are up 12% this month!";
   // Simulated chat messages state
-  const [messages, setMessages] = useState<Array<{ text: string; sender: string }>>([]);
+  const [messages, setMessages] = useState<Array<{ text: string; sender: string }>>([
+    // { text: 'Welcome to WalletSense!', sender: 'ai' }
+  ]);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when messages change
@@ -142,39 +145,48 @@ export function AIAssistantInterface() {
     <>
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-bg p-6">
         <div className="w-full max-w-3xl mx-auto flex flex-col items-center">
+          <WelcomeBanner /><br></br>
           {/* Chat messages */}
-          {messages.length > 0 && (
-            <div className="w-full max-w-2xl mx-auto mb-6 bg-white/40 dark:bg-zinc-800/40 rounded-xl p-4 space-y-2 overflow-y-auto" style={{ maxHeight: 320 }}>
-              {messages.map((msg, idx) => (
-                <div key={idx} className={`text-base px-3 py-2 rounded-lg ${msg.sender === 'ai' ? 'bg-blue-50 dark:bg-zinc-700 text-blue-900 dark:text-blue-200' : 'bg-wallet-accent text-wallet-accent-foreground'}`}>{msg.text}</div>
-              ))}
-              <div ref={chatEndRef} />
-            </div>
-          )}
-          {/* Modern Welcome Banner Card */}
-          <div className="w-full mb-6 px-6 py-4 rounded-lg bg-card backdrop-blur drop-shadow-xl flex flex-col sm:flex-row items-center gap-4">
-            {/* Left: Emoji Circle */}
-            <span className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-blue-400 to-purple-500 shadow text-white text-3xl">
-              {window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? '🌙' : '🌞'}
-            </span>
-            {/* Center: Greeting and Info */}
-            <div className="flex flex-col items-center sm:items-start flex-1">
-              <span className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400 bg-clip-text text-transparent">
-                Welcome to WalletSense!
-              </span>
-              <span className="text-base text-foreground mt-1">
-                {getGreeting()}, {userName} 👋
-              </span>
-              <span className="text-sm text-muted-foreground">
-                Your financial assistant is ready to help you today.
-              </span>
-              {insight && (
-                <span className="mt-2 inline-block bg-muted text-foreground text-xs px-3 py-1 rounded-full">
-                  {insight}
-                </span>
-              )}
-            </div>
-          </div>
+          {/* <div className="w-full max-w-2xl mx-auto mb-6 bg-white/40 dark:bg-zinc-800/40 rounded-xl p-4 space-y-2 overflow-y-auto" style={{ maxHeight: 320 }}>
+            {messages.map((msg, idx) => (
+              <div key={idx} className={`text-base px-3 py-2 rounded-lg ${msg.sender === 'ai' ? 'bg-blue-50 dark:bg-zinc-700 text-blue-900 dark:text-blue-200' : 'bg-wallet-accent text-wallet-accent-foreground'}`}>{msg.text}</div>
+            ))}
+            <div ref={chatEndRef} />
+          </div> */}
+        {/* WalletSense Logo with animated gradient */}
+        <div className="mb-8 w-20 h-20 relative">
+          <motion.div
+            className="w-full h-full rounded-full bg-gradient-primary flex items-center justify-center shadow-glow"
+            animate={{
+              scale: [1, 1.05, 1],
+              rotate: [0, 5, -5, 0],
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          >
+            <Sparkles className="w-10 h-10 text-white" />
+          </motion.div>
+        </div>
+
+        {/* Welcome message */}
+        <div className="mb-10 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="flex flex-col items-center"
+          >
+            <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">
+              Ready to assist you
+            </h1>
+            <p className="text-muted-foreground max-w-md">
+              Your AI-powered financial advisor is here to help with investments, budgeting, and financial planning
+            </p>
+          </motion.div>
+        </div>
 
         {/* Input area with integrated functions and file upload */}
         <div className="w-full glass-card rounded-xl overflow-hidden mb-4">
