@@ -2,8 +2,8 @@ import { AIAssistantInterface } from '@/components/ui/ai-assistant-interface';
 import { Card } from '@/components/ui/card';
 import SpendingChart from '@/components/SpendingChart';
 import TrendChart from '@/components/TrendChart';
-// import CategoryBarChart from '@/components/CategoryBarChart';
-// import DailySpendHeatmap from '@/components/DailySpendHeatmap';
+import CategoryBarChart from '@/components/CategoryBarChart';
+import DailySpendHeatmap from '@/components/DailySpendHeatmap';
 import { TrendingUp, DollarSign, PiggyBank, CreditCard } from 'lucide-react';
 import SummaryCard from '@/components/SummaryCard';
 import GoalCard from '@/components/GoalCard';
@@ -47,16 +47,28 @@ const Dashboard = () => {
             <TrendChart
               data={[{ week: 'Jul 1', amount: 4200 }, { week: 'Jul 8', amount: 3800 }, { week: 'Jul 15', amount: 4500 }, { week: 'Jul 22', amount: 3900 }]}
             />
-            {/* Placeholder for CategoryBarChart */}
-            <div className="rounded-md shadow-sm p-4 bg-white dark:bg-muted/80">
-              <h3 className="font-bold text-lg text-foreground mb-4">Spend by Category</h3>
-              <div className="text-muted-foreground text-sm">[CategoryBarChart will appear here]</div>
-            </div>
-            {/* Optional: DailySpendHeatmap */}
-            <div className="rounded-md shadow-sm p-4 bg-white dark:bg-muted/80">
-              <h3 className="font-bold text-lg text-foreground mb-4">Daily Spend Heatmap</h3>
-              <div className="text-muted-foreground text-sm">[DailySpendHeatmap will appear here]</div>
-            </div>
+            <CategoryBarChart
+              data={[{ week: 'Jul 1', Food: 1200, Shopping: 800, Bills: 500 }, { week: 'Jul 8', Food: 900, Shopping: 950, Bills: 600 }, { week: 'Jul 15', Food: 1100, Shopping: 700, Bills: 550 }, { week: 'Jul 22', Food: 1000, Shopping: 850, Bills: 650 }]}
+            />
+            <DailySpendHeatmap
+              data={[
+                { date: '2025-07-01', amount: 1200 },
+                { date: '2025-07-02', amount: 800 },
+                { date: '2025-07-03', amount: 400 },
+                { date: '2025-07-04', amount: 600 },
+                { date: '2025-07-05', amount: 300 },
+                { date: '2025-07-06', amount: 0 },
+                { date: '2025-07-07', amount: 900 },
+                { date: '2025-07-08', amount: 950 },
+                { date: '2025-07-09', amount: 600 },
+                { date: '2025-07-10', amount: 1100 },
+                { date: '2025-07-11', amount: 700 },
+                { date: '2025-07-12', amount: 550 },
+                { date: '2025-07-13', amount: 1000 },
+                { date: '2025-07-14', amount: 850 },
+                { date: '2025-07-15', amount: 650 },
+              ]}
+            />
           </div>
 
           {/* Recent Activity */}
