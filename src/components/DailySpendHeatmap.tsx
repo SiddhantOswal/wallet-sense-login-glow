@@ -1,5 +1,6 @@
 import React from 'react';
-import { format, parseISO, startOfWeek, addDays, isSameDay } from 'date-fns';
+import { format, parseISO, startOfWeek, addDays, isSameDay, subDays } from 'date-fns';
+import { useMCP } from '@/contexts/MCPContext';
 
 export interface DailySpendHeatmapProps {
   data?: Array<{ date: string; amount: number }>;
@@ -24,7 +25,42 @@ function getColorIdx(amount: number, thresholds: number[]) {
   return 4;
 }
 
-export const DailySpendHeatmap: React.FC<DailySpendHeatmapProps> = ({ data = [], className }) => {
+const sampleData = [
+  { date: "2025-01-01", amount: 2 },
+  { date: "2025-01-02", amount: 300 },
+  { date: "2025-01-03", amount: 1 },
+  { date: "2025-02-10", amount: 500 },
+  { date: "2025-03-15", amount: 800 },
+  { date: "2025-04-01", amount: 1200 },
+  { date: "2025-06-20", amount: 2000 }
+];
+
+export const DailySpendHeatmap: React.FC<DailySpendHeatmapProps> = ({ data: propData = [], className }) => {
+  const { mcp } = useMCP();
+
+  // If MCP is loaded, aggregate and filter to last 14 days
+  let data: { date: string; amount: number }[] = propData;
+  if (mcp && mcp.transactions && mcp.transactions.length > 0) {
+    const map: Record<string, number> = {};
+    for (const txn of mcp.transactions) {
+      const date = txn.date.slice(0, 10); // yyyy-MM-dd
+      map[date] = (map[date] || 0) + txn.amount;
+    }
+    // Only last 14 days
+    const today = new Date();
+    const start = subDays(today, 13); // 14 days including today
+    data = Object.entries(map)
+      .map(([date, amount]) => ({ date, amount }))
+      .filter(d => {
+        const dt = parseISO(d.date);
+        return dt >= start && dt <= today;
+      });
+    // If no data in last 14 days, fallback to sample
+    if (data.length === 0) data = sampleData;
+  } else if (!propData || propData.length === 0) {
+    data = sampleData;
+  }
+
   if (!data || data.length === 0) {
     return (
       <div className={`rounded-md shadow-sm p-4 bg-gradient-to-r from-blue-600 to-pink-500 text-white ${className || ''}`}>
@@ -65,6 +101,7 @@ export const DailySpendHeatmap: React.FC<DailySpendHeatmapProps> = ({ data = [],
   return (
     <div className={`rounded-md shadow-sm p-4 bg-white dark:bg-muted/80 ${className || ''}`}>
       <h3 className="font-bold text-lg text-foreground mb-4">Daily Spend Heatmap</h3>
+      <div className="text-muted-foreground text-sm mb-2">Upload your MCP file to view daily spend breakdown.</div>
       <div className="overflow-x-auto">
         <div className="grid grid-cols-7 gap-1">
           {/* Render grid cells */}
@@ -92,15 +129,15 @@ export const DailySpendHeatmap: React.FC<DailySpendHeatmapProps> = ({ data = [],
       {/* Legend */}
       <div className="flex items-center gap-2 mt-4 flex-wrap">
         <span className="text-xs text-muted-foreground">Legend:</span>
-        <span className="w-5 h-5 rounded bg-gray-200 border border-gray-300 inline-block" />
+        <span className="w-5 h-5 rounded bg-blue-50 border border-blue-200 inline-block" />
         <span className="text-xs">0</span>
-        <span className="w-5 h-5 rounded bg-blue-100 border border-blue-200 inline-block" />
+        <span className="w-5 h-5 rounded bg-blue-600 border border-blue-700 inline-block" />
         <span className="text-xs">1 - {thresholds[0]}</span>
-        <span className="w-5 h-5 rounded bg-blue-300 border border-blue-400 inline-block" />
+        <span className="w-5 h-5 rounded bg-pink-500 border border-pink-600 inline-block" />
         <span className="text-xs">{thresholds[0] + 1} - {thresholds[1]}</span>
-        <span className="w-5 h-5 rounded bg-blue-500 border border-blue-600 inline-block" />
+        <span className="w-5 h-5 rounded bg-blue-600 border border-blue-700 inline-block" />
         <span className="text-xs">{thresholds[1] + 1} - {thresholds[2]}</span>
-        <span className="w-5 h-5 rounded bg-blue-700 border border-blue-800 inline-block" />
+        <span className="w-5 h-5 rounded bg-pink-500 border border-pink-600 inline-block" />
         <span className="text-xs">{thresholds[2] + 1}+</span>
       </div>
     </div>
