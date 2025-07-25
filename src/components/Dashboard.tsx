@@ -156,7 +156,24 @@ const Dashboard = ({ onLogout }: { onLogout?: () => void }) => {
               <div className="space-y-2">
                 <p className="text-sm text-foreground font-medium">💡 Smart Tip</p>
                 <p className="text-xs text-muted-foreground">
-                  You're spending 15% less on dining out this month. Consider investing this saved amount in your emergency fund.
+                  {hasMCP
+                    ? (() => {
+                        // Example: Find the category with highest spend in last 10 transactions
+                        const spendTx = recentTx.filter(tx => tx.amount < 0);
+                        if (spendTx.length === 0) return 'Great job! No expenses in your recent transactions.';
+                        const categoryTotals: Record<string, number> = {};
+                        spendTx.forEach(tx => {
+                          const cat = tx.category || 'Other';
+                          categoryTotals[cat] = (categoryTotals[cat] || 0) + Math.abs(tx.amount);
+                        });
+                        const topCategory = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0];
+                        if (topCategory) {
+                          return `You've spent the most on ${topCategory[0]} recently. Consider reviewing your spending in this category.`;
+                        }
+                        return 'Review your recent expenses for new saving opportunities.';
+                      })()
+                    : "You're spending 15% less on dining out this month. Consider investing this saved amount in your emergency fund."
+                  }
                 </p>
               </div>
             </Card>
