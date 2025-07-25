@@ -35,7 +35,9 @@ const Dashboard = ({ onLogout }: { onLogout?: () => void }) => {
               </p>
             </div>
             {/* AI Financial Summary */}
-            <SummaryCard />
+            <div className="mb-4">
+              <SummaryCard />
+            </div>
             {/* Savings Goal */}
             <GoalCard />
             {/* Recent Expenses */}

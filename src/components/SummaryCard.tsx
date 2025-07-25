@@ -1,79 +1,42 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { EnhancedCard, CardContent, CardHeader, CardTitle } from '@/components/ui/enhanced-card';
-import { Sparkles } from 'lucide-react';
+import React from 'react';
+import { useMCP } from '@/contexts/MCPContext';
 
-const SummaryCard = () => {
-  const [isLoading, setIsLoading] = useState(true);
+const currency = (value: number) => `₹${value.toLocaleString('en-IN')}`;
 
-  useEffect(() => {
-    // Simulate loading delay
-    const timer = setTimeout(() => setIsLoading(false), 1500);
-    return () => clearTimeout(timer);
-  }, []);
+const sample = {
+  assets: 250000,
+  liabilities: 80000,
+  goals: 3,
+};
 
-  const insights = [
-    "You spent ₹12,000 on food this month - 8% more than usual",
-    "Net worth increased 4% this quarter",
-    "Your emergency fund covers 6.2 months of expenses"
-  ];
-
-  if (isLoading) {
-    return (
-      <EnhancedCard className="backdrop-blur-md bg-card/70 border-border/50 hover:shadow-lg transition-all duration-300">
-        <CardHeader className="border-0 py-4">
-          <CardTitle className="inline-flex items-center gap-2">
-            <Sparkles className="size-5 text-primary" />
-            Your Financial Summary
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-0 space-y-3">
-          {/* Shimmer skeleton */}
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="flex items-start gap-3">
-              <div className="w-1.5 h-1.5 rounded-full bg-muted animate-pulse mt-2" />
-              <div className="flex-1 space-y-2">
-                <div className="h-4 bg-muted rounded animate-pulse w-full" />
-                <div className="h-4 bg-muted rounded animate-pulse w-3/4" />
-              </div>
-            </div>
-          ))}
-        </CardContent>
-      </EnhancedCard>
-    );
-  }
+const SummaryCard: React.FC = () => {
+  const { mcp } = useMCP();
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-    >
-      <EnhancedCard className="backdrop-blur-md bg-card/70 border-border/50 hover:shadow-lg transition-all duration-300">
-        <CardHeader className="border-0 py-4">
-          <CardTitle className="inline-flex items-center gap-2">
-            <Sparkles className="size-5 text-primary" />
-            Your Financial Summary
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-0 space-y-3">
-          {insights.map((insight, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1, duration: 0.4 }}
-              className="flex items-start gap-3 group"
-            >
-              <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 group-hover:scale-125 transition-transform" />
-              <p className="text-sm text-foreground leading-relaxed">
-                {insight}
-              </p>
-            </motion.div>
-          ))}
-        </CardContent>
-      </EnhancedCard>
-    </motion.div>
+    <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl shadow">
+      <div className="mb-2 flex items-center gap-2">
+        <span role="img" aria-label="summary" className="text-xl">📊</span>
+        <span className="font-semibold text-lg text-zinc-900 dark:text-zinc-100">Financial Summary</span>
+      </div>
+      {!mcp ? (
+        <>
+          <div className="text-zinc-500 dark:text-zinc-400 text-sm mb-2">
+            Upload your MCP JSON to view your personalized summary.
+          </div>
+          <ul className="list-disc pl-5 space-y-1 text-zinc-900 dark:text-zinc-100 opacity-70">
+            <li> Total Assets: {currency(sample.assets)} </li>
+            <li> Total Liabilities: {currency(sample.liabilities)} </li>
+            <li> You have {sample.goals} active financial goals </li>
+          </ul>
+        </>
+      ) : (
+        <ul className="list-disc pl-5 space-y-1 text-zinc-900 dark:text-zinc-100">
+          <li> Total Assets: {currency(mcp.assets.reduce((sum, asset) => sum + (asset.value ?? 0), 0))} </li>
+          <li> Total Liabilities: {currency(mcp.liabilities.reduce((sum, liability) => sum + (liability.value ?? 0), 0))} </li>
+          <li> You have {mcp.goals.length} active financial goals </li>
+        </ul>
+      )}
+    </div>
   );
 };
 

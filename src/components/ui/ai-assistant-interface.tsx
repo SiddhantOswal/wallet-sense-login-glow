@@ -18,6 +18,8 @@ import {
   Upload,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useMCP } from '../../contexts/MCPContext';
+import { loadMCPFromFile } from '../../utils/loadMCP';
 
 export function AIAssistantInterface() {
   // Helper functions and placeholders
@@ -64,14 +66,20 @@ export function AIAssistantInterface() {
 
   // Upload MCP JSON
   const handleUploadMCP = () => {
+    const { setMCP } = useMCP();
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json,application/json';
-    input.onchange = (e: any) => {
+    input.onchange = async (e: any) => {
       const file = e.target.files[0];
       if (file) {
-        // You can handle the file here (e.g., parse JSON)
-        alert(`Uploaded MCP JSON: ${file.name}`);
+        try {
+          const parsedData = await loadMCPFromFile(file);
+          setMCP(parsedData);
+          alert(`MCP data loaded successfully from: ${file.name}`);
+        } catch (err: any) {
+          alert(`Failed to load MCP: ${err.message || err}`);
+        }
       }
     };
     input.click();
