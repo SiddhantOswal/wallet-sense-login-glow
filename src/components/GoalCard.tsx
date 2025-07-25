@@ -162,7 +162,7 @@ const GoalCard: React.FC = () => {
                 of ₹{goal.target.toLocaleString()}
               </span>
             </div>
-          </div>
+          </div>//
           {/* Progress message */}
           <div className="text-sm text-muted-foreground italic text-right">
             {percent < 100
