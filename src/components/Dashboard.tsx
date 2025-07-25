@@ -1,9 +1,11 @@
 import { AIAssistantInterface } from '@/components/ui/ai-assistant-interface';
+import React from 'react';
 import { Card } from '@/components/ui/card';
 import SpendingChart from '@/components/SpendingChart';
 import TrendChart from '@/components/TrendChart';
 import CategoryBarChart from '@/components/CategoryBarChart';
 import DailySpendHeatmap from '@/components/DailySpendHeatmap';
+import { useMCP } from '@/contexts/MCPContext';
 import { TrendingUp, DollarSign, PiggyBank, CreditCard } from 'lucide-react';
 import SummaryCard from '@/components/SummaryCard';
 import GoalCard from '@/components/GoalCard';
@@ -11,6 +13,15 @@ import ReceiptList from '@/components/ReceiptList';
 import WelcomeBanner from '@/components/ui/WelcomeBanner';
 // ...existing code...
 const Dashboard = ({ onLogout }: { onLogout?: () => void }) => {
+  const { mcp } = useMCP();
+  const [showAll, setShowAll] = React.useState(false);
+  let recentTx: any[] = [];
+  let hasMCP = mcp && mcp.transactions && mcp.transactions.length > 0;
+  if (hasMCP) {
+    recentTx = [...mcp.transactions]
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 10);
+  }
   return (
     <div className="min-h-screen bg-gradient-bg flex flex-col">
       {/* Welcome Banner above everything */}
@@ -67,29 +78,74 @@ const Dashboard = ({ onLogout }: { onLogout?: () => void }) => {
 
           {/* Recent Activity */}
           <div className="space-y-3">
-            <h3 className="text-lg font-semibold text-foreground">Recent Activity</h3>
+            <h3 className="text-lg font-semibold text-foreground">Recent Activity <span className="text-muted-foreground text-sm">(Last 10 transactions)</span></h3>
+            {!hasMCP && (
+              <div className="text-sm text-muted-foreground mb-2">Upload your MCP file to view your recent activity</div>
+            )}
             <div className="space-y-2">
-              {/* ...existing code... */}
-              {[
-                { action: "SIP Investment", amount: "₹5,000", time: "2 hours ago", type: "investment" },
-                { action: "Grocery Shopping", amount: "₹2,840", time: "1 day ago", type: "expense" },
-                { action: "Salary Credited", amount: "₹75,000", time: "3 days ago", type: "income" },
-              ].map((activity, index) => (
-                <Card key={index} className="glass-card p-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{activity.action}</p>
-                      <p className="text-xs text-muted-foreground">{activity.time}</p>
-                    </div>
-                    <p className={`text-sm font-semibold ${
-                      activity.type === 'income' ? 'text-green-600' : 
-                      activity.type === 'investment' ? 'text-wallet-primary' : 'text-orange-600'
-                    }`}>
-                      {activity.type === 'expense' ? '-' : '+'}{activity.amount}
-                    </p>
-                  </div>
-                </Card>
-              ))}
+              {hasMCP
+                ? (showAll ? recentTx : recentTx.slice(0, 3)).map((tx, idx) => {
+                    const label = tx.category || tx.merchant || 'Transaction';
+                    const timeAgo = new Date(tx.date).toLocaleDateString();
+                    const isPositive = tx.amount > 0;
+                    return (
+                      <Card key={tx.id || idx} className="glass-card p-3">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-foreground">{label}</p>
+                            <p className="text-xs text-muted-foreground">{timeAgo}</p>
+                          </div>
+                          <p className={`text-sm font-semibold ${
+                            isPositive ? 'text-green-600' : 'text-orange-600'
+                          }`}>
+                            {isPositive ? '+' : '-'}₹{Math.abs(tx.amount).toLocaleString()}
+                          </p>
+                        </div>
+                      </Card>
+                    );
+                  })
+                : (showAll
+                    ? [
+                        { action: "SIP Investment", amount: "₹5,000", time: "2 hours ago", type: "investment" },
+                        { action: "Grocery Shopping", amount: "₹2,840", time: "1 day ago", type: "expense" },
+                        { action: "Salary Credited", amount: "₹75,000", time: "3 days ago", type: "income" },
+                        { action: "Online Shopping", amount: "₹1,200", time: "4 days ago", type: "expense" },
+                        { action: "Electricity Bill", amount: "₹3,000", time: "5 days ago", type: "expense" },
+                        { action: "Interest Credited", amount: "₹800", time: "6 days ago", type: "income" },
+                        { action: "Dining Out", amount: "₹1,500", time: "7 days ago", type: "expense" },
+                        { action: "Mobile Recharge", amount: "₹399", time: "8 days ago", type: "expense" },
+                        { action: "Fuel", amount: "₹2,000", time: "9 days ago", type: "expense" },
+                        { action: "Bonus Received", amount: "₹10,000", time: "10 days ago", type: "income" },
+                      ]
+                    : [
+                        { action: "SIP Investment", amount: "₹5,000", time: "2 hours ago", type: "investment" },
+                        { action: "Grocery Shopping", amount: "₹2,840", time: "1 day ago", type: "expense" },
+                        { action: "Salary Credited", amount: "₹75,000", time: "3 days ago", type: "income" },
+                      ]
+                  ).map((activity, index) => (
+                    <Card key={index} className="glass-card p-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{activity.action}</p>
+                          <p className="text-xs text-muted-foreground">{activity.time}</p>
+                        </div>
+                        <p className={`text-sm font-semibold ${
+                          activity.type === 'income' ? 'text-green-600' : 
+                          activity.type === 'investment' ? 'text-wallet-primary' : 'text-orange-600'
+                        }`}>
+                          {activity.type === 'expense' ? '-' : '+'}{activity.amount}
+                        </p>
+                      </div>
+                    </Card>
+                  ))}
+              {(hasMCP ? recentTx.length > 3 : true) && (
+                <button
+                  className="text-xs text-wallet-primary mt-2 underline cursor-pointer"
+                  onClick={() => setShowAll((prev) => !prev)}
+                >
+                  {showAll ? 'Show Less' : 'Show More'}
+                </button>
+              )}
             </div>
           </div>
 
