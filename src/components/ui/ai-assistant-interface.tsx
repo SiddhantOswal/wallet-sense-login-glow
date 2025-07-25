@@ -64,9 +64,11 @@ export function AIAssistantInterface() {
     URL.revokeObjectURL(url);
   };
 
+  // Get setMCP from context at the top level (valid hook usage)
+  const { setMCP } = useMCP();
+
   // Upload MCP JSON
   const handleUploadMCP = () => {
-    const { setMCP } = useMCP();
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json,application/json';
