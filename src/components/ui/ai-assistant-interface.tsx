@@ -2,6 +2,10 @@ import React, { useState, useRef } from "react";
 "use client";
 import WelcomeBanner from "@/components/ui/WelcomeBanner";
 
+import { X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+// Download, motion, AnimatePresence already imported below
+
 import {
   Search,
   Mic,
@@ -17,11 +21,266 @@ import {
   Download,
   Upload,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+// Already imported above
 import { useMCP } from '../../contexts/MCPContext';
 import { loadMCPFromFile } from '../../utils/loadMCP';
+// Import generateInsightReport and InsightReportModal (already in this file)
+
+// InsightRow type for financial insights
+export type InsightRow = {
+  section: string; // e.g., "SummaryCard", "SpendingChart", "GoalCard"
+  metric: string;  // e.g., "Net Worth", "Food & Dining Spend"
+  value: string;   // e.g., "₹1,20,000"
+  source: string;  // e.g., "assets - liabilities", "6 txns in 'food'"
+  action: string;  // e.g., "Review your debt ratio"
+};
+
+function formatINR(num: number): string {
+  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(num);
+}
+
+export function generateInsightReport(mcp: any): InsightRow[] {
+  const rows: InsightRow[] = [];
+
+  // SummaryCard — Net Worth
+  const assets = Array.isArray(mcp?.assets) ? mcp.assets.reduce((a: number, b: number) => a + b, 0) : (mcp?.assets ?? 0);
+  const liabilities = Array.isArray(mcp?.liabilities) ? mcp.liabilities.reduce((a: number, b: number) => a + b, 0) : (mcp?.liabilities ?? 0);
+  if (assets || liabilities) {
+    rows.push({
+      section: "SummaryCard",
+      metric: "Net Worth",
+      value: formatINR(assets - liabilities),
+      source: "assets - liabilities",
+      action: "Review your debt ratio",
+    });
+  } else {
+    rows.push({
+      section: "SummaryCard",
+      metric: "Net Worth",
+      value: "-",
+      source: "-",
+      action: "Upload MCP to get personalized insight",
+    });
+  }
+
+  // SpendingChart — Food & Dining
+  let foodTxns = [];
+  if (Array.isArray(mcp?.transactions)) {
+    const grouped: Record<string, any[]> = {};
+    mcp.transactions.forEach((tx: any) => {
+      const cat = tx.category?.toLowerCase() || "other";
+      grouped[cat] = grouped[cat] || [];
+      grouped[cat].push(tx);
+    });
+    foodTxns = grouped["food"] || grouped["food & dining"] || [];
+    if (foodTxns.length > 0) {
+      const total = foodTxns.reduce((sum, tx) => sum + (tx.amount || 0), 0);
+      rows.push({
+        section: "SpendingChart",
+        metric: "Food & Dining Spend",
+        value: formatINR(total),
+        source: `${foodTxns.length} txns in 'food'`,
+        action: "Consider meal planning to reduce dining cost",
+      });
+    } else {
+      // fallback to top category
+      let maxCat = "";
+      let maxTotal = 0;
+      Object.entries(grouped).forEach(([cat, txns]) => {
+        const total = txns.reduce((sum, tx) => sum + (tx.amount || 0), 0);
+        if (total > maxTotal) {
+          maxTotal = total;
+          maxCat = cat;
+        }
+      });
+      if (maxCat) {
+        rows.push({
+          section: "SpendingChart",
+          metric: `${maxCat.charAt(0).toUpperCase() + maxCat.slice(1)} Spend`,
+          value: formatINR(maxTotal),
+          source: `${grouped[maxCat].length} txns in '${maxCat}'`,
+          action: "Review your top spending category for savings",
+        });
+      } else {
+        rows.push({
+          section: "SpendingChart",
+          metric: "Food & Dining Spend",
+          value: "-",
+          source: "-",
+          action: "Upload MCP to get personalized insight",
+        });
+      }
+    }
+  } else {
+    rows.push({
+      section: "SpendingChart",
+      metric: "Food & Dining Spend",
+      value: "-",
+      source: "-",
+      action: "Upload MCP to get personalized insight",
+    });
+  }
+
+  // GoalCard — Top financial goal
+  if (Array.isArray(mcp?.goals) && mcp.goals.length > 0) {
+    const goal = mcp.goals[0];
+    rows.push({
+      section: "GoalCard",
+      metric: goal.label || goal.name || "Goal",
+      value: `${formatINR(goal.current)} / ${formatINR(goal.target)}`,
+      source: goal.label || goal.name || "-",
+      action: "Increase monthly saving by ₹2,000",
+    });
+  } else {
+    rows.push({
+      section: "GoalCard",
+      metric: "Top Goal",
+      value: "-",
+      source: "-",
+      action: "Upload MCP to get personalized insight",
+    });
+  }
+
+  // TrendChart — Weekly Spend Avg
+  if (Array.isArray(mcp?.transactions) && mcp.transactions.length > 0) {
+    // Group by ISO week
+    const weekTotals: Record<string, number> = {};
+    mcp.transactions.forEach((tx: any) => {
+      const date = new Date(tx.date);
+      // Get ISO week string: YYYY-Www
+      const year = date.getFullYear();
+      const week = Math.ceil((((date.getTime() - new Date(year, 0, 1).getTime()) / 86400000) + new Date(year, 0, 1).getDay() + 1) / 7);
+      const key = `${year}-W${week}`;
+      weekTotals[key] = (weekTotals[key] || 0) + (tx.amount || 0);
+    });
+    const last4Weeks = Object.values(weekTotals).slice(-4);
+    const avg = last4Weeks.length ? last4Weeks.reduce((a, b) => a + b, 0) / last4Weeks.length : 0;
+    rows.push({
+      section: "TrendChart",
+      metric: "Weekly Spend Avg",
+      value: last4Weeks.length ? formatINR(Math.round(avg)) : "-",
+      source: last4Weeks.length ? `Last ${last4Weeks.length} weeks` : "-",
+      action: "Set weekly budget to maintain consistency",
+    });
+  } else {
+    rows.push({
+      section: "TrendChart",
+      metric: "Weekly Spend Avg",
+      value: "-",
+      source: "-",
+      action: "Upload MCP to get personalized insight",
+    });
+  }
+
+  // Sort/group by section name
+  return rows.sort((a, b) => a.section.localeCompare(b.section));
+}
 
 export function AIAssistantInterface() {
+  // Preview modal state
+  const [showInsightPreview, setShowInsightPreview] = useState(false);
+// InsightReportModal component
+type InsightReportModalProps = {
+  open: boolean;
+  onClose: () => void;
+  insights: InsightRow[];
+};
+function InsightReportModal({ open, onClose, insights }: InsightReportModalProps) {
+  const handleExportCSV = () => {
+    if (!insights || insights.length === 0) {
+      alert('No insights to export.');
+      return;
+    }
+    const header = ['Section', 'Metric', 'Value', 'Source', 'Action'];
+    const rows = insights.map(row => [row.section, row.metric, row.value, row.source, row.action]);
+    const csvContent = [header, ...rows].map(e => e.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'insight-report.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-white/50 dark:bg-zinc-800/50 backdrop-blur-md"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div
+            className="glass-card rounded-xl shadow-2xl max-w-3xl w-full mx-4 p-6 relative"
+            initial={{ scale: 0.95, y: 40, opacity: 0 }}
+            animate={{ scale: 1, y: 0, opacity: 1 }}
+            exit={{ scale: 0.95, y: 40, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <span role="img" aria-label="report">📋</span> Exportable Insight Report
+              </h2>
+              <button
+                onClick={onClose}
+                className="p-2 rounded-full hover:bg-muted transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm rounded-xl overflow-hidden">
+                <thead className="bg-gradient-to-r from-blue-600 to-pink-500 text-white">
+                  <tr>
+                    <th className="py-2 px-3 text-left font-semibold">Section</th>
+                    <th className="py-2 px-3 text-left font-semibold">Metric</th>
+                    <th className="py-2 px-3 text-left font-semibold">Value</th>
+                    <th className="py-2 px-3 text-left font-semibold">Source</th>
+                    <th className="py-2 px-3 text-left font-semibold">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white/60 dark:bg-zinc-800/60 divide-y divide-border">
+                  {insights.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="py-4 text-center text-muted-foreground">No insights available</td>
+                    </tr>
+                  ) : (
+                    insights.map((row, idx) => (
+                      <tr key={idx}>
+                        <td className="py-2 px-3 font-medium text-wallet-primary whitespace-nowrap">{row.section}</td>
+                        <td className="py-2 px-3 whitespace-nowrap">{row.metric}</td>
+                        <td className="py-2 px-3 whitespace-nowrap">{row.value}</td>
+                        <td className="py-2 px-3 whitespace-nowrap">{row.source}</td>
+                        <td className="py-2 px-3 whitespace-nowrap">{row.action}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+            {/* Actions */}
+            <div className="flex justify-end gap-2 mt-6">
+              <button
+                onClick={onClose}
+                className="px-4 py-2 rounded-lg bg-muted text-foreground hover:bg-wallet-accent transition-colors font-medium"
+              >
+                Close
+              </button>
+              <button
+                onClick={handleExportCSV}
+                className="px-4 py-2 rounded-lg bg-wallet-primary text-wallet-primary-foreground flex items-center gap-2 font-medium shadow-button hover:bg-wallet-secondary transition-colors"
+              >
+                <Download className="w-4 h-4" /> Export CSV
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
   // Helper functions and placeholders
   // const getGreeting = () => {
   //   const hour = new Date().getHours();
@@ -50,8 +309,8 @@ export function AIAssistantInterface() {
     { date: '2025-07-03', merchant: 'Starbucks', amount: 400 },
   ];
 
-  // Export receipts as CSV
-  const handleExportCSV = () => {
+  // Export receipts as CSV (keep for receipts only)
+  const handleExportReceiptsCSV = () => {
     const header = ['Date', 'Merchant', 'Amount'];
     const rows = receipts.map(r => [r.date, r.merchant, r.amount]);
     const csvContent = [header, ...rows].map(e => e.join(",")).join("\n");
@@ -64,8 +323,8 @@ export function AIAssistantInterface() {
     URL.revokeObjectURL(url);
   };
 
-  // Get setMCP from context at the top level (valid hook usage)
-  const { setMCP } = useMCP();
+  // Get MCP and setMCP from context at the top level (valid hook usage)
+  const { mcp, setMCP } = useMCP();
 
   // Upload MCP JSON
   const handleUploadMCP = () => {
@@ -449,10 +708,10 @@ export function AIAssistantInterface() {
       <div className="fixed bottom-6 right-6 flex flex-col gap-4 z-50">
         <button
           className="btn-glass flex items-center gap-2 px-4 py-2 rounded-xl bg-white/50 dark:bg-zinc-800/60 backdrop-blur-lg shadow transition-all hover:shadow-lg hover:scale-105 text-foreground"
-          onClick={handleExportCSV}
+          onClick={() => setShowInsightPreview(true)}
         >
           <Download className="w-5 h-5" />
-          Export CSV
+          Export Insights
         </button>
         <button
           className="btn-glass flex items-center gap-2 px-4 py-2 rounded-xl bg-white/50 dark:bg-zinc-800/60 backdrop-blur-lg shadow transition-all hover:shadow-lg hover:scale-105 text-foreground"
@@ -462,6 +721,13 @@ export function AIAssistantInterface() {
           Upload MCP
         </button>
       </div>
+
+      {/* Insight Report Modal Preview */}
+      <InsightReportModal
+        open={showInsightPreview}
+        onClose={() => setShowInsightPreview(false)}
+        insights={mcp ? generateInsightReport(mcp) : []}
+      />
     </>
   );
 }
