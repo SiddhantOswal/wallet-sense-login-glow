@@ -35,7 +35,7 @@ const Dashboard = ({ onLogout }: { onLogout?: () => void }) => {
         </div>
         {/* Right side - Financial Overview (40%) */}
         <div className="w-[40%] bg-muted/20 flex flex-col h-screen max-h-screen">
-          <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4 h-full max-h-screen">
+          <div className="flex-1 overflow-y-auto px-4 py-6 pt-28 space-y-4 h-full max-h-screen">
             {/* Header */}
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-foreground mb-2">

@@ -1,5 +1,16 @@
 "use client";
-import { Moon } from "lucide-react";
+// Custom Nucleus SVG Logo
+const NucleusLogo = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="28">
+    <defs>
+      <linearGradient id="n-gradient" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#6366F1" />
+        <stop offset="100%" stop-color="#EC4899" />
+      </linearGradient>
+    </defs>
+    <text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="44" font-weight="bold" fill="#fff">N</text>
+  </svg>
+);
 
 export default function WelcomeBanner({ onLogout }: { onLogout?: () => void }) {
   const getGreeting = () => {
@@ -12,11 +23,11 @@ export default function WelcomeBanner({ onLogout }: { onLogout?: () => void }) {
   const userName = "Moneyhead..";
 
   return (
-    <div className="w-full bg-white dark:bg-zinc-900 shadow-md px-6 py-4 flex items-center justify-between z-10">
+    <div className="fixed top-0 left-0 w-full bg-white dark:bg-zinc-900 shadow-md px-6 py-4 flex items-center justify-between z-30">
       {/* Left Side: Greeting */}
       <div className="flex items-center gap-4">
         <div className="bg-gradient-to-br from-indigo-400 to-fuchsia-500 rounded-full w-12 h-12 flex items-center justify-center text-white shadow-md">
-          <Moon className="w-5 h-5" />
+          <NucleusLogo />
         </div>
         <div className="flex flex-col">
           <h2 className="text-xl font-extrabold bg-gradient-to-r from-blue-600 to-pink-500 text-transparent bg-clip-text">
