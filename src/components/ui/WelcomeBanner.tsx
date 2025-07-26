@@ -1,4 +1,5 @@
 "use client";
+import { useAuth } from '@/contexts/AuthContext';
 // Custom Nucleus SVG Logo
 const NucleusLogo = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="28">
@@ -13,6 +14,8 @@ const NucleusLogo = () => (
 );
 
 export default function WelcomeBanner({ onLogout }: { onLogout?: () => void }) {
+  const { user, logout } = useAuth();
+  
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return "Good Morning";
@@ -20,7 +23,7 @@ export default function WelcomeBanner({ onLogout }: { onLogout?: () => void }) {
     return "Good Evening";
   };
 
-  const userName = "Moneyhead..";
+  const userName = user?.displayName || user?.email?.split('@')[0] || "Moneyhead..";
 
   return (
     <div className="fixed top-0 left-0 w-full bg-white dark:bg-zinc-900 shadow-md px-6 py-4 flex items-center justify-between z-30">
@@ -42,7 +45,10 @@ export default function WelcomeBanner({ onLogout }: { onLogout?: () => void }) {
       {/* Right Side: Logout Button */}
       <button
         className="text-sm font-medium bg-gradient-to-r from-blue-600 to-pink-500 hover:from-blue-700 hover:to-pink-600 text-white px-4 py-2 rounded-md transition"
-        onClick={() => onLogout && onLogout()}
+        onClick={() => {
+          logout();
+          if (onLogout) onLogout();
+        }}
       >
         Logout
       </button>

@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 import googleIcon from '@/assets/google-icon.png';
 
 // Ripple Animation Component
@@ -107,16 +109,24 @@ interface GoogleSignInButtonProps {
 
 const GoogleSignInButton = ({ onLoginSuccess }: GoogleSignInButtonProps) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleGoogleSignIn = () => {
-    // Handle Google OAuth here
-    console.log('Google Sign In clicked');
-    // Simulate successful login
-    setTimeout(() => {
+  const handleGoogleSignIn = async () => {
+    try {
+      setIsLoading(true);
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      console.log('Google Sign In successful:', result.user);
+      
       if (onLoginSuccess) {
         onLoginSuccess();
       }
-    }, 1000);
+    } catch (error) {
+      console.error('Google Sign In failed:', error);
+      alert('Sign in failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -125,8 +135,9 @@ const GoogleSignInButton = ({ onLoginSuccess }: GoogleSignInButtonProps) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleGoogleSignIn}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      disabled={isLoading}
+      whileHover={{ scale: isLoading ? 1 : 1.02 }}
+      whileTap={{ scale: isLoading ? 1 : 0.98 }}
     >
       <div className="flex items-center justify-center gap-3">
         <img 
@@ -135,7 +146,7 @@ const GoogleSignInButton = ({ onLoginSuccess }: GoogleSignInButtonProps) => {
           className="w-5 h-5"
         />
         <span className="text-foreground font-medium">
-          Sign in with Google
+          {isLoading ? 'Signing in...' : 'Sign in with Google'}
         </span>
       </div>
       
