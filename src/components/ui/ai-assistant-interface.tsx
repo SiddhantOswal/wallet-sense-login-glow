@@ -1,4 +1,6 @@
 import React, { useState, useRef } from "react";
+import { askGemini } from "@/api/ask";
+
 "use client";
 import WelcomeBanner from "@/components/ui/WelcomeBanner";
 
@@ -37,6 +39,15 @@ export type InsightRow = {
 
 function formatINR(num: number): string {
   return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(num);
+}
+
+interface SelectedUser {
+  sessionId: string;
+  phoneNumber: string;
+}
+
+interface AIAssistantInterfaceProps {
+  selectedUser: SelectedUser;
 }
 
 export function generateInsightReport(mcp: any): InsightRow[] {
@@ -176,7 +187,8 @@ export function generateInsightReport(mcp: any): InsightRow[] {
   return rows.sort((a, b) => a.section.localeCompare(b.section));
 }
 
-export function AIAssistantInterface() {
+export function AIAssistantInterface({ selectedUser }: AIAssistantInterfaceProps) {
+
   // Preview modal state
   const [showInsightPreview, setShowInsightPreview] = useState(false);
 // InsightReportModal component
@@ -398,15 +410,35 @@ function InsightReportModal({ open, onClose, insights }: InsightReportModalProps
     }
   };
 
-  const handleSendMessage = () => {
-    if (inputValue.trim()) {
-      setIsLoading(true);
-      setMessages((prev) => [...prev, { text: inputValue, sender: 'user' }]);
-      setTimeout(() => {
-        setIsLoading(false);
-        setMessages((prev) => [...prev, { text: 'Gemini response...', sender: 'ai' }]);
-        setInputValue("");
-      }, 2000); // Simulate Gemini response
+  const handleSendMessage = async () => {
+    console.log("Send clicked");
+    if (!inputValue.trim() || !selectedUser) {
+      console.log("Early return: inputValue:", inputValue, "selectedUser:", selectedUser);
+      return;
+    }
+
+    const userMessage = inputValue.trim();
+    setIsLoading(true);
+    setMessages((prev) => [...prev, { text: userMessage, sender: "user" }]);
+
+    try {
+      console.log("About to call askGemini");
+      const response = await askGemini(
+        userMessage,
+        selectedUser.sessionId,
+        selectedUser.phoneNumber
+      );
+      console.log("askGemini response:", response);
+      setMessages((prev) => [...prev, { text: response, sender: "ai" }]);
+    } catch (err) {
+      console.error("Gemini request failed:", err);
+      setMessages((prev) => [
+        ...prev,
+        { text: "⚠️ Failed to get a response. Please try again.", sender: "ai" },
+      ]);
+    } finally {
+      setIsLoading(false);
+      setInputValue("");
     }
   };
 

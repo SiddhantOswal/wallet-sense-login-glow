@@ -31,7 +31,7 @@ const Dashboard = ({ onLogout }: { onLogout?: () => void }) => {
       <div className="flex flex-1">
         {/* Left side - AI Assistant (60%) */}
         <div className="w-[60%] border-r border-border">
-          <AIAssistantInterface />
+          <AIAssistantInterface selectedUser={{ sessionId: 'test-session', phoneNumber: '9999999999' }} />
         </div>
         {/* Right side - Financial Overview (40%) */}
         <div className="w-[40%] bg-muted/20 flex flex-col h-screen max-h-screen">
