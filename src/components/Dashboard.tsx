@@ -3,7 +3,6 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import SpendingChart from '@/components/SpendingChart';
 import TrendChart from '@/components/TrendChart';
-import CategoryBarChart from '@/components/CategoryBarChart';
 import DailySpendHeatmap from '@/components/DailySpendHeatmap';
 import { useMCP } from '@/contexts/MCPContext';
 import { TrendingUp, DollarSign, PiggyBank, CreditCard } from 'lucide-react';
@@ -11,20 +10,56 @@ import SummaryCard from '@/components/SummaryCard';
 import GoalCard from '@/components/GoalCard';
 import ReceiptList from '@/components/ReceiptList';
 import WelcomeBanner from '@/components/ui/WelcomeBanner';
+import { categorizeTransactions } from '@/api/categorizeTransactions';
+
 const searchParams = new URLSearchParams(window.location.search);
-const sessionId = searchParams.get("sessionId") || "";
+const sessionId = searchParams.get("sessionId") || "test-session-123"; // Fallback for testing
+const phoneNumber = searchParams.get("phoneNumber") || "test-phone-123"; // Fallback for testing
 
 // ...existing code...
 const Dashboard = ({ onLogout }: { onLogout?: () => void }) => {
   const { mcp } = useMCP();
   const [showAll, setShowAll] = React.useState(false);
+  const [categorizedTransactions, setCategorizedTransactions] = React.useState<any[]>([]);
+  const [isCategorizing, setIsCategorizing] = React.useState(false);
+  
   let recentTx: any[] = [];
   let hasMCP = mcp && mcp.transactions && mcp.transactions.length > 0;
+  
   if (hasMCP) {
     recentTx = [...mcp.transactions]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, 10);
   }
+
+  // Function to categorize transactions
+  const handleCategorizeTransactions = React.useCallback(async () => {
+    if (!hasMCP || !sessionId || !phoneNumber) return;
+    
+    try {
+      setIsCategorizing(true);
+      const categories = await categorizeTransactions(
+        sessionId,
+        phoneNumber,
+        mcp.transactions
+      );
+      setCategorizedTransactions(categories);
+    } catch (error) {
+      console.error('Failed to categorize transactions:', error);
+    } finally {
+      setIsCategorizing(false);
+    }
+  }, [hasMCP, sessionId, phoneNumber, mcp?.transactions]);
+
+  // Categorize transactions when MCP data is available
+  React.useEffect(() => {
+    if (hasMCP && sessionId && phoneNumber && categorizedTransactions.length === 0) {
+      handleCategorizeTransactions();
+    }
+  }, [hasMCP, sessionId, phoneNumber, handleCategorizeTransactions, categorizedTransactions.length]);
+
+  // Use categorized transactions if available, otherwise use original transactions
+  const displayTransactions = categorizedTransactions.length > 0 ? categorizedTransactions : recentTx;
   return (
     <div className="min-h-screen bg-gradient-bg flex flex-col">
       {/* Welcome Banner above everything */}
@@ -34,7 +69,7 @@ const Dashboard = ({ onLogout }: { onLogout?: () => void }) => {
       <div className="flex flex-1">
         {/* Left side - AI Assistant (60%) */}
         <div className="w-[60%] border-r border-border">
-          <AIAssistantInterface selectedUser={{ sessionId, phoneNumber: '' }} />
+          <AIAssistantInterface selectedUser={{ sessionId, phoneNumber }} />
         </div>
         {/* Right side - Financial Overview (40%) */}
         <div className="w-[40%] bg-muted/20 flex flex-col h-screen max-h-screen">
@@ -50,7 +85,7 @@ const Dashboard = ({ onLogout }: { onLogout?: () => void }) => {
             </div>
             {/* AI Financial Summary */}
             <div className="mb-4">
-              <SummaryCard />
+              <SummaryCard sessionId={sessionId} />
             </div>
             {/* Savings Goal */}
             <GoalCard />
@@ -63,9 +98,6 @@ const Dashboard = ({ onLogout }: { onLogout?: () => void }) => {
               />
               <TrendChart
                 data={[{ week: 'Jul 1', amount: 4200 }, { week: 'Jul 8', amount: 3800 }, { week: 'Jul 15', amount: 4500 }, { week: 'Jul 22', amount: 3900 }]}
-              />
-              <CategoryBarChart
-                data={[{ week: 'Jul 1', Food: 1200, Shopping: 800, Bills: 500 }, { week: 'Jul 8', Food: 900, Shopping: 950, Bills: 600 }, { week: 'Jul 15', Food: 1100, Shopping: 700, Bills: 550 }, { week: 'Jul 22', Food: 1000, Shopping: 850, Bills: 650 }]}
               />
               <DailySpendHeatmap
                 data={[
@@ -81,13 +113,30 @@ const Dashboard = ({ onLogout }: { onLogout?: () => void }) => {
 
           {/* Recent Activity */}
           <div className="space-y-3">
-            <h3 className="text-lg font-semibold text-foreground">Recent Activity <span className="text-muted-foreground text-sm">(Last 10 transactions)</span></h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-foreground">Recent Activity <span className="text-muted-foreground text-sm">(Last 10 transactions)</span></h3>
+              {hasMCP && sessionId && phoneNumber && (
+                <button
+                  onClick={handleCategorizeTransactions}
+                  disabled={isCategorizing}
+                  className="text-xs text-wallet-primary underline cursor-pointer disabled:opacity-50"
+                >
+                  {isCategorizing ? 'Categorizing...' : 'Refresh Categories'}
+                </button>
+              )}
+            </div>
             {!hasMCP && (
               <div className="text-sm text-muted-foreground mb-2">Upload your MCP file to view your recent activity</div>
             )}
+            {isCategorizing && (
+              <div className="text-sm text-muted-foreground mb-2">🔄 Categorizing your transactions...</div>
+            )}
+            {categorizedTransactions.length > 0 && !isCategorizing && (
+              <div className="text-sm text-green-600 mb-2">✅ Using AI-categorized transactions</div>
+            )}
             <div className="space-y-2">
               {hasMCP
-                ? (showAll ? recentTx : recentTx.slice(0, 3)).map((tx, idx) => {
+                ? (showAll ? displayTransactions : displayTransactions.slice(0, 3)).map((tx, idx) => {
                     const label = tx.category || tx.merchant || 'Transaction';
                     const timeAgo = new Date(tx.date).toLocaleDateString();
                     const isPositive = tx.amount > 0;
@@ -141,7 +190,7 @@ const Dashboard = ({ onLogout }: { onLogout?: () => void }) => {
                       </div>
                     </Card>
                   ))}
-              {(hasMCP ? recentTx.length > 3 : true) && (
+              {(hasMCP ? displayTransactions.length > 3 : true) && (
                 <button
                   className="text-xs text-wallet-primary mt-2 underline cursor-pointer"
                   onClick={() => setShowAll((prev) => !prev)}
@@ -162,7 +211,7 @@ const Dashboard = ({ onLogout }: { onLogout?: () => void }) => {
                   {hasMCP
                     ? (() => {
                         // Example: Find the category with highest spend in last 10 transactions
-                        const spendTx = recentTx.filter(tx => tx.amount < 0);
+                        const spendTx = displayTransactions.filter(tx => tx.amount < 0);
                         if (spendTx.length === 0) return 'Great job! No expenses in your recent transactions.';
                         const categoryTotals: Record<string, number> = {};
                         spendTx.forEach(tx => {
