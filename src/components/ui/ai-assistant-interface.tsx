@@ -527,7 +527,7 @@ function ChatMessage({ message }: ChatMessageProps) {
     setInputValue(""); // Clear input immediately
 
     try {
-      console.log("About to call askGemini");
+      console.log("About to call askGemini", selectedUser.sessionId);
       const response = await askGemini(
         userMessage,
         selectedUser.sessionId,

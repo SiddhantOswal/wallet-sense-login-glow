@@ -11,6 +11,9 @@ import SummaryCard from '@/components/SummaryCard';
 import GoalCard from '@/components/GoalCard';
 import ReceiptList from '@/components/ReceiptList';
 import WelcomeBanner from '@/components/ui/WelcomeBanner';
+const searchParams = new URLSearchParams(window.location.search);
+const sessionId = searchParams.get("sessionId") || "";
+
 // ...existing code...
 const Dashboard = ({ onLogout }: { onLogout?: () => void }) => {
   const { mcp } = useMCP();
@@ -31,7 +34,7 @@ const Dashboard = ({ onLogout }: { onLogout?: () => void }) => {
       <div className="flex flex-1">
         {/* Left side - AI Assistant (60%) */}
         <div className="w-[60%] border-r border-border">
-          <AIAssistantInterface selectedUser={{ sessionId: 'test-session', phoneNumber: '9999999999' }} />
+          <AIAssistantInterface selectedUser={{ sessionId, phoneNumber: '' }} />
         </div>
         {/* Right side - Financial Overview (40%) */}
         <div className="w-[40%] bg-muted/20 flex flex-col h-screen max-h-screen">
