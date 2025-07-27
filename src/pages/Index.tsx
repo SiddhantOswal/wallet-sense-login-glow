@@ -1,5 +1,5 @@
 import { useAuth } from '@/contexts/AuthContext';
-import NucleusLogin from '@/components/WalletSenseLogin';
+// import NucleusLogin from '@/components/WalletSenseLogin';
 import Dashboard from '@/components/Dashboard';
 
 const Index = () => {
@@ -17,7 +17,7 @@ const Index = () => {
     return <Dashboard onLogout={logout} />;
   }
 
-  return <NucleusLogin />;
+  // return <NucleusLogin />;
 };
 
 export default Index;
