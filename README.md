@@ -1,7 +1,7 @@
 
-# WalletSense
+# Nucleus
 
-WalletSense is a modern personal finance dashboard built with React, TypeScript, Vite, Tailwind CSS, and shadcn-ui. It features:
+Nucleus is a modern personal finance dashboard built with React, TypeScript, Vite, Tailwind CSS, and shadcn-ui. It features:
 
 - AI-powered financial assistant (Gemini)
 - Dark and light theme support with instant toggle

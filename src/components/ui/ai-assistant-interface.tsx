@@ -302,11 +302,58 @@ function InsightReportModal({ open, onClose, insights }: InsightReportModalProps
   // };
   // const userName = "Moneyhead";
   // const insight = "Your savings are up 12% this month!";
-  // Simulated chat messages state
-  const [messages, setMessages] = useState<Array<{ text: string; sender: string }>>([
-    // { text: 'Welcome to Nucleus!', sender: 'ai' }
-  ]);
-  const chatEndRef = useRef<HTMLDivElement>(null);
+  // Enhanced chat messages state with unique IDs and temp flags
+interface Message {
+  id?: string;
+  text: string;
+  sender: "user" | "ai";
+  temp?: boolean;
+}
+
+const [messages, setMessages] = useState<Message[]>([]);
+const chatEndRef = useRef<HTMLDivElement>(null);
+
+// ChatMessage component for modern glassmorphic design
+interface ChatMessageProps {
+  message: Message;
+}
+
+function ChatMessage({ message }: ChatMessageProps) {
+  const isUser = message.sender === 'user';
+  const isTemp = message.temp;
+  
+  return (
+    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-3`}>
+      <div className={`max-w-[80%] px-4 py-3 rounded-2xl shadow-md ${
+        isUser 
+          ? 'bg-gradient-to-br from-indigo-500 to-violet-500 text-white' 
+          : isTemp
+            ? 'bg-[#101828]/40 backdrop-blur-md text-slate-200 border border-slate-300/20 italic'
+            : 'bg-[#101828]/60 backdrop-blur-md text-slate-100 border border-slate-300/20 shadow-sm'
+      }`}>
+        <div className="flex items-start gap-2">
+          {!isUser && !isTemp && (
+            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <Sparkles className="w-3 h-3 text-white" />
+            </div>
+          )}
+          <div className="flex-1">
+            {message.text}
+            {isTemp && (
+              <span className="inline-block ml-2">
+                <div className="flex space-x-1">
+                  <div className="w-1 h-1 bg-slate-300 rounded-full animate-bounce"></div>
+                  <div className="w-1 h-1 bg-slate-300 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-1 h-1 bg-slate-300 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                </div>
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
   // Auto-scroll to bottom when messages change
   React.useEffect(() => {
@@ -418,8 +465,26 @@ function InsightReportModal({ open, onClose, insights }: InsightReportModalProps
     }
 
     const userMessage = inputValue.trim();
+    const userMessageId = `user-${Date.now()}-${Math.random()}`;
+    const aiMessageId = `ai-${Date.now()}-${Math.random()}`;
+
+    // Add user message instantly
+    setMessages((prev) => [...prev, { 
+      id: userMessageId,
+      text: userMessage, 
+      sender: "user" 
+    }]);
+
+    // Add temporary "Thinking..." AI message
+    setMessages((prev) => [...prev, { 
+      id: aiMessageId,
+      text: "Thinking...", 
+      sender: "ai",
+      temp: true 
+    }]);
+
     setIsLoading(true);
-    setMessages((prev) => [...prev, { text: userMessage, sender: "user" }]);
+    setInputValue(""); // Clear input immediately
 
     try {
       console.log("About to call askGemini");
@@ -429,16 +494,24 @@ function InsightReportModal({ open, onClose, insights }: InsightReportModalProps
         selectedUser.phoneNumber
       );
       console.log("askGemini response:", response);
-      setMessages((prev) => [...prev, { text: response, sender: "ai" }]);
+      
+      // Replace temporary message with actual response
+      setMessages((prev) => prev.map(msg => 
+        msg.id === aiMessageId 
+          ? { ...msg, text: response, temp: false }
+          : msg
+      ));
     } catch (err) {
       console.error("Gemini request failed:", err);
-      setMessages((prev) => [
-        ...prev,
-        { text: "⚠️ Failed to get a response. Please try again.", sender: "ai" },
-      ]);
+      
+      // Replace temporary message with error
+      setMessages((prev) => prev.map(msg => 
+        msg.id === aiMessageId 
+          ? { ...msg, text: "⚠️ Failed to get a response. Please try again.", temp: false }
+          : msg
+      ));
     } finally {
       setIsLoading(false);
-      setInputValue("");
     }
   };
 
@@ -448,46 +521,57 @@ function InsightReportModal({ open, onClose, insights }: InsightReportModalProps
         <div className="w-full max-w-3xl mx-auto flex flex-col items-center">
           {/* <WelcomeBanner /><br></br> */}
           {/* Chat messages */}
-          {/* <div className="w-full max-w-2xl mx-auto mb-6 bg-white/40 dark:bg-zinc-800/40 rounded-xl p-4 space-y-2 overflow-y-auto" style={{ maxHeight: 320 }}>
-            {messages.map((msg, idx) => (
-              <div key={idx} className={`text-base px-3 py-2 rounded-lg ${msg.sender === 'ai' ? 'bg-blue-50 dark:bg-zinc-700 text-blue-900 dark:text-blue-200' : 'bg-wallet-accent text-wallet-accent-foreground'}`}>{msg.text}</div>
-            ))}
+          <div className="w-full max-w-2xl mx-auto mb-6 bg-white/40 dark:bg-zinc-800/40 rounded-xl p-4 space-y-2 overflow-y-auto" style={{ maxHeight: 320 }}>
+            {messages.length === 0 ? (
+              <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+                <p>Start a conversation with your AI assistant!</p>
+                <p className="text-sm mt-2">Try asking: "What is my net worth?"</p>
+              </div>
+            ) : (
+              messages.map((msg, idx) => (
+                <ChatMessage key={msg.id || idx} message={msg} />
+              ))
+            )}
             <div ref={chatEndRef} />
-          </div> */}
-        {/* Nucleus Logo with animated gradient */}
-        <div className="mb-8 w-20 h-20 relative">
-          <motion.div
-            className="w-full h-full rounded-full bg-gradient-primary flex items-center justify-center shadow-glow"
-            animate={{
-              scale: [1, 1.05, 1],
-              rotate: [0, 5, -5, 0],
-            }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          >
-            <Sparkles className="w-10 h-10 text-white" />
-          </motion.div>
-        </div>
+          </div>
+        {/* Nucleus Logo with animated gradient - only show when no messages */}
+        {messages.length === 0 && (
+          <>
+            <div className="mb-8 w-20 h-20 relative">
+              <motion.div
+                className="w-full h-full rounded-full bg-gradient-primary flex items-center justify-center shadow-glow"
+                animate={{
+                  scale: [1, 1.05, 1],
+                  rotate: [0, 5, -5, 0],
+                }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              >
+                <Sparkles className="w-10 h-10 text-white" />
+              </motion.div>
+            </div>
 
-        {/* Welcome message */}
-        <div className="mb-10 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="flex flex-col items-center"
-          >
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-pink-500 bg-clip-text text-transparent mb-2">
-              Ready to assist you
-            </h1>
-            <p className="text-muted-foreground max-w-md">
-              Your AI-powered financial advisor is here to help with investments, budgeting, and financial planning
-            </p>
-          </motion.div>
-        </div>
+            {/* Welcome message */}
+            <div className="mb-10 text-center">
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="flex flex-col items-center"
+              >
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-pink-500 bg-clip-text text-transparent mb-2">
+                  Ready to assist you
+                </h1>
+                <p className="text-muted-foreground max-w-md">
+                  Your AI-powered financial advisor is here to help with investments, budgeting, and financial planning
+                </p>
+              </motion.div>
+            </div>
+          </>
+        )}
 
         {/* Input area with integrated functions and file upload */}
         <div className="w-full glass-card rounded-xl overflow-hidden mb-4">
@@ -498,6 +582,7 @@ function InsightReportModal({ open, onClose, insights }: InsightReportModalProps
               placeholder="Ask about your finances..."
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && !isLoading && inputValue.trim() && handleSendMessage()}
               className={`w-full bg-transparent text-foreground text-base outline-none placeholder:text-muted-foreground transition-all duration-300 ${isLoading ? 'ring-2 ring-blue-400 animate-pulse' : ''}`}
               disabled={isLoading}
             />
