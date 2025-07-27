@@ -6,13 +6,13 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { MCPProvider } from "@/contexts/MCPContext";
-import { AuthProvider } from "@/contexts/AuthContext";
+// import { AuthProvider } from "@/contexts/AuthContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
+    {/* <AuthProvider> */}
       <MCPProvider>
         <TooltipProvider>
           <Toaster />
@@ -26,7 +26,7 @@ const App = () => (
           </BrowserRouter>
         </TooltipProvider>
       </MCPProvider>
-    </AuthProvider>
+    {/* </AuthProvider> */}
   </QueryClientProvider>
 );
 

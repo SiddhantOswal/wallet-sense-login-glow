@@ -1,5 +1,5 @@
 "use client";
-import { useAuth } from '@/contexts/AuthContext';
+// import { useAuth } from '@/contexts/AuthContext';
 // Custom Nucleus SVG Logo
 const NucleusLogo = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="28">
@@ -14,7 +14,7 @@ const NucleusLogo = () => (
 );
 
 export default function WelcomeBanner({ onLogout }: { onLogout?: () => void }) {
-  const { user, logout } = useAuth();
+  // const { user, logout } = useAuth();
   
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -23,7 +23,7 @@ export default function WelcomeBanner({ onLogout }: { onLogout?: () => void }) {
     return "Good Evening";
   };
 
-  const userName = user?.displayName || user?.email?.split('@')[0] || "Moneyhead..";
+  // const userName = user?.displayName || user?.email?.split('@')[0] || "Moneyhead..";
 
   return (
     <div className="fixed top-0 left-0 w-full bg-white dark:bg-zinc-900 shadow-md px-6 py-4 flex items-center justify-between z-30">
@@ -37,7 +37,7 @@ export default function WelcomeBanner({ onLogout }: { onLogout?: () => void }) {
             Welcome to Nucleus!
           </h2>
           <p className="text-gray-900 dark:text-white text-sm">
-            <span className="font-medium">{getGreeting()}, {userName}</span> <span className="ml-1">👋</span>
+            {/* <span className="font-medium">{getGreeting()}, {userName}</span> <span className="ml-1">👋</span> */}
           </p>
         </div>
       </div>
@@ -46,7 +46,7 @@ export default function WelcomeBanner({ onLogout }: { onLogout?: () => void }) {
       <button
         className="text-sm font-medium bg-gradient-to-r from-blue-600 to-pink-500 hover:from-blue-700 hover:to-pink-600 text-white px-4 py-2 rounded-md transition"
         onClick={() => {
-          logout();
+          // logout();
           if (onLogout) onLogout();
         }}
       >
