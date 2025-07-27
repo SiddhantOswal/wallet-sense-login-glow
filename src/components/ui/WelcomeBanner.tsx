@@ -44,14 +44,15 @@ export default function WelcomeBanner({ onLogout }: { onLogout?: () => void }) {
 
       {/* Right Side: Logout Button */}
       <button
-        className="text-sm font-medium bg-gradient-to-r from-blue-600 to-pink-500 hover:from-blue-700 hover:to-pink-600 text-white px-4 py-2 rounded-md transition"
-        onClick={() => {
-          // logout();
-          if (onLogout) onLogout();
-        }}
-      >
-        Logout
-      </button>
+      className="text-sm font-medium bg-gradient-to-r from-blue-600 to-pink-500 hover:from-blue-700 hover:to-pink-600 text-white px-4 py-2 rounded-md transition"
+      onClick={() => {
+      if (onLogout) onLogout();
+      window.location.href = "http://localhost:8000";
+  }}
+>
+  Logout
+</button>
+
     </div>
   );
 }

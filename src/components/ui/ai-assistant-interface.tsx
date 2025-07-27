@@ -9,15 +9,12 @@ import { motion, AnimatePresence } from "framer-motion";
 // Download, motion, AnimatePresence already imported below
 
 import {
-  Search,
-  Mic,
   ArrowUp,
   Plus,
   FileText,
   TrendingUp,
   PiggyBank,
   CreditCard,
-  BrainCircuit,
   Sparkles,
   Loader2,
   Download,
@@ -26,6 +23,7 @@ import {
 // Already imported above
 import { useMCP } from '../../contexts/MCPContext';
 import { loadMCPFromFile } from '../../utils/loadMCP';
+import ReactMarkdown from 'react-markdown';
 // Import generateInsightReport and InsightReportModal (already in this file)
 
 // InsightRow type for financial insights
@@ -322,14 +320,31 @@ function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.sender === 'user';
   const isTemp = message.temp;
   
+  // Preprocess AI message text to improve Markdown formatting
+  const preprocessText = (text: string) => {
+    return text
+      // Convert asterisk lists to proper Markdown lists
+      .replace(/^\s*\*\s+/gm, '- ')
+      // Ensure proper spacing for lists
+      .replace(/\n\s*\*\s+/g, '\n- ')
+      // Add line breaks before headers
+      .replace(/([^\n])\n\*\*([^*]+):\*\*/g, '$1\n\n**$2:**')
+      // Ensure proper spacing around bold text
+      .replace(/\*\*([^*]+)\*\*/g, '**$1**')
+      // Add proper spacing for nested lists
+      .replace(/\n\s{2,}\*\s+/g, '\n  - ')
+      // Clean up multiple line breaks
+      .replace(/\n{3,}/g, '\n\n');
+  };
+  
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-3`}>
       <div className={`max-w-[80%] px-4 py-3 rounded-2xl shadow-md ${
         isUser 
-          ? 'bg-gradient-to-br from-indigo-500 to-violet-500 text-white' 
+          ? 'bg-blue-600 text-white' 
           : isTemp
-            ? 'bg-[#101828]/40 backdrop-blur-md text-slate-200 border border-slate-300/20 italic'
-            : 'bg-[#101828]/60 backdrop-blur-md text-slate-100 border border-slate-300/20 shadow-sm'
+            ? 'bg-purple-500 text-white border border-purple-500 italic'
+            : 'bg-purple-500 text-white border border-purple-500 shadow-sm'
       }`}>
         <div className="flex items-start gap-2">
           {!isUser && !isTemp && (
@@ -338,7 +353,35 @@ function ChatMessage({ message }: ChatMessageProps) {
             </div>
           )}
           <div className="flex-1">
-            {message.text}
+            {isUser ? (
+              // User messages: plain text
+              <div className="whitespace-pre-wrap break-words">
+                {message.text}
+              </div>
+            ) : (
+              // AI messages: Markdown rendering with preprocessing
+              <div className="prose prose-sm prose-invert max-w-none">
+                <ReactMarkdown
+                  components={{
+                    // Custom styling for different markdown elements
+                    p: ({ children }) => <p className="mb-3 last:mb-0 leading-relaxed">{children}</p>,
+                    ul: ({ children }) => <ul className="list-disc list-inside mb-3 space-y-2 ml-2">{children}</ul>,
+                    ol: ({ children }) => <ol className="list-decimal list-inside mb-3 space-y-2 ml-2">{children}</ol>,
+                    li: ({ children }) => <li className="text-white leading-relaxed">{children}</li>,
+                    strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
+                    em: ({ children }) => <em className="italic text-white">{children}</em>,
+                    code: ({ children }) => <code className="bg-slate-700 px-1 py-0.5 rounded text-xs font-mono">{children}</code>,
+                    pre: ({ children }) => <pre className="bg-slate-800 p-2 rounded text-xs overflow-x-auto mb-2">{children}</pre>,
+                    h1: ({ children }) => <h1 className="text-lg font-bold text-white mb-3">{children}</h1>,
+                    h2: ({ children }) => <h2 className="text-base font-semibold text-white mb-3">{children}</h2>,
+                    h3: ({ children }) => <h3 className="text-sm font-semibold text-white mb-2">{children}</h3>,
+                    blockquote: ({ children }) => <blockquote className="border-l-4 border-white pl-3 italic text-white mb-3">{children}</blockquote>,
+                  }}
+                >
+                  {preprocessText(message.text)}
+                </ReactMarkdown>
+              </div>
+            )}
             {isTemp && (
               <span className="inline-block ml-2">
                 <div className="flex space-x-1">
@@ -406,9 +449,6 @@ function ChatMessage({ message }: ChatMessageProps) {
   };
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false); // Simulate Gemini loading state
-  const [searchEnabled, setSearchEnabled] = useState(false);
-  const [deepResearchEnabled, setDeepResearchEnabled] = useState(false);
-  const [reasonEnabled, setReasonEnabled] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
   const [showUploadAnimation, setShowUploadAnimation] = useState(false);
   const [activeCommandCategory, setActiveCommandCategory] = useState<
@@ -475,12 +515,12 @@ function ChatMessage({ message }: ChatMessageProps) {
       sender: "user" 
     }]);
 
-    // Add temporary "Thinking..." AI message
-    setMessages((prev) => [...prev, { 
+    // Add empty AI message placeholder with `temp: true`
+    setMessages((prev) => [...prev, {
       id: aiMessageId,
-      text: "Thinking...", 
+      text: "",
       sender: "ai",
-      temp: true 
+      temp: true
     }]);
 
     setIsLoading(true);
@@ -582,17 +622,7 @@ function ChatMessage({ message }: ChatMessageProps) {
           </div>
 
           {/* Input area - sticky bottom */}
-          <div className="sticky bottom-0 bg-white/5 backdrop-blur-md border-t border-white/10 p-4 rounded-b-xl">
-            <input
-              ref={inputRef}
-              type="text"
-              placeholder="Ask about your finances..."
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && !isLoading && inputValue.trim() && handleSendMessage()}
-              className={`w-full bg-transparent text-foreground text-base outline-none placeholder:text-muted-foreground transition-all duration-300 ${isLoading ? 'ring-2 ring-blue-400 animate-pulse' : ''}`}
-              disabled={isLoading}
-            />
+          <div className="sticky bottom-0 bg-white/5 backdrop-blur-md border-t border-white/10 rounded-b-xl">
           </div>
 
           {/* Uploaded files */}
@@ -635,63 +665,33 @@ function ChatMessage({ message }: ChatMessageProps) {
             </div>
           )}
 
-          {/* Search, Deep Research, Reason functions and actions */}
-          <div className="px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setSearchEnabled(!searchEnabled)}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                  searchEnabled
-                    ? "bg-wallet-primary text-wallet-primary-foreground shadow-button"
-                    : "bg-wallet-accent text-wallet-accent-foreground hover:bg-wallet-primary/10"
-                }`}
-              >
-                <Search className="w-4 h-4" />
-                <span>Search</span>
-              </button>
-              <button
-                onClick={() => setDeepResearchEnabled(!deepResearchEnabled)}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                  deepResearchEnabled
-                    ? "bg-wallet-primary text-wallet-primary-foreground shadow-button"
-                    : "bg-wallet-accent text-wallet-accent-foreground hover:bg-wallet-primary/10"
-                }`}
-              >
-                <TrendingUp className="w-4 h-4" />
-                <span>Deep Research</span>
-              </button>
-              <button
-                onClick={() => setReasonEnabled(!reasonEnabled)}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                  reasonEnabled
-                    ? "bg-wallet-primary text-wallet-primary-foreground shadow-button"
-                    : "bg-wallet-accent text-wallet-accent-foreground hover:bg-wallet-primary/10"
-                }`}
-              >
-                <BrainCircuit className="w-4 h-4" />
-                <span>Reason</span>
-              </button>
-            </div>
-            <div className="flex items-center gap-2">
-              <button className="p-2 text-muted-foreground hover:text-foreground transition-colors">
-                <Mic className="w-5 h-5" />
-              </button>
-              <button
-                onClick={handleSendMessage}
-                disabled={!inputValue.trim() || isLoading}
-                className={`w-8 h-8 flex items-center justify-center rounded-full transition-all duration-300 ${
-                  inputValue.trim() && !isLoading
-                    ? "bg-wallet-primary text-wallet-primary-foreground hover:bg-wallet-secondary shadow-button"
-                    : "bg-muted text-muted-foreground cursor-not-allowed"
-                }`}
-              >
-                {isLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <ArrowUp className="w-4 h-4" />
-                )}
-              </button>
-            </div>
+          {/* Input and send button in same line */}
+          <div className="px-4 py-3 flex items-center gap-2">
+            <input
+              ref={inputRef}
+              type="text"
+              placeholder="Ask about your finances..."
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && !isLoading && inputValue.trim() && handleSendMessage()}
+              className={`flex-1 bg-transparent text-foreground text-base outline-none placeholder:text-muted-foreground transition-all duration-300 ${isLoading ? 'ring-2 ring-blue-400 animate-pulse' : ''}`}
+              disabled={isLoading}
+            />
+            <button
+              onClick={handleSendMessage}
+              disabled={!inputValue.trim() || isLoading}
+              className={`w-8 h-8 flex items-center justify-center rounded-full transition-all duration-300 ${
+                inputValue.trim() && !isLoading
+                  ? "bg-wallet-primary text-wallet-primary-foreground hover:bg-wallet-secondary shadow-button"
+                  : "bg-muted text-muted-foreground cursor-not-allowed"
+              }`}
+            >
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <ArrowUp className="w-4 h-4" />
+              )}
+            </button>
           </div>
 
           {/* Upload files */}
