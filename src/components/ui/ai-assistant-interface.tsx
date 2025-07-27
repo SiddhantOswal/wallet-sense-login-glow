@@ -517,23 +517,10 @@ function ChatMessage({ message }: ChatMessageProps) {
 
   return (
     <>
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-bg p-6">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-bg p-6 pt-24">
         <div className="w-full max-w-3xl mx-auto flex flex-col items-center">
           {/* <WelcomeBanner /><br></br> */}
-          {/* Chat messages */}
-          <div className="w-full max-w-2xl mx-auto mb-6 bg-white/40 dark:bg-zinc-800/40 rounded-xl p-4 space-y-2 overflow-y-auto" style={{ maxHeight: 320 }}>
-            {messages.length === 0 ? (
-              <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-                <p>Start a conversation with your AI assistant!</p>
-                <p className="text-sm mt-2">Try asking: "What is my net worth?"</p>
-              </div>
-            ) : (
-              messages.map((msg, idx) => (
-                <ChatMessage key={msg.id || idx} message={msg} />
-              ))
-            )}
-            <div ref={chatEndRef} />
-          </div>
+
         {/* Nucleus Logo with animated gradient - only show when no messages */}
         {messages.length === 0 && (
           <>
@@ -573,9 +560,29 @@ function ChatMessage({ message }: ChatMessageProps) {
           </>
         )}
 
-        {/* Input area with integrated functions and file upload */}
-        <div className="w-full glass-card rounded-xl overflow-hidden mb-4">
-          <div className="p-4">
+        {/* Unified chat interface with messages and input */}
+        <div className="w-full glass-card rounded-xl overflow-hidden mb-4 flex flex-col">
+          {/* Chat messages area */}
+          <div className="flex-1 overflow-y-auto max-h-[400px] p-4 space-y-2">
+            {messages.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-pink-500 bg-clip-text text-transparent mb-2">
+                  Start a conversation with your AI assistant!
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Try asking: "What is my net worth?"
+                </p>
+              </div>
+            ) : (
+              messages.map((msg, idx) => (
+                <ChatMessage key={msg.id || idx} message={msg} />
+              ))
+            )}
+            <div ref={chatEndRef} />
+          </div>
+
+          {/* Input area - sticky bottom */}
+          <div className="sticky bottom-0 bg-white/5 backdrop-blur-md border-t border-white/10 p-4 rounded-b-xl">
             <input
               ref={inputRef}
               type="text"
